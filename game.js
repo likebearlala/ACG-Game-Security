@@ -17,7 +17,7 @@ const setupSteps = [
   {
     key: "style",
     title: "選擇故事風格",
-    options: ["現實慢熱", "青春曖昧", "雙向拉扯", "甜蜜日常", "群像戀愛", "玩家自訂 / 全隨機"],
+    options: ["現實慢熱", "欺瞞拉扯", "雙向試探", "高壓祕密", "報復劇情", "玩家自訂 / 全隨機"],
   },
   {
     key: "heat",
@@ -29,16 +29,16 @@ const setupSteps = [
 const pools = {
   names: ["沈予安", "周靜禾", "許知遠", "陳沐晴", "梁以辰", "林晏", "唐若白", "喬念"],
   partnerTraits: ["溫柔體貼型", "敏感多疑型", "強勢獨立型", "感情遲鈍型", "細心觀察型"],
-  dangerTraits: ["溫柔陪伴型", "直球告白型", "舊識重逢型", "體貼照顧型", "陽光曖昧型"],
+  dangerTraits: ["溫柔攻勢型", "進攻直球型", "糾纏舊識型", "報復誘惑型", "陽光曖昧型"],
   jobs: ["出版社編輯", "展覽策展人", "品牌企劃", "急診護理師", "獨立攝影師", "資料分析師"],
 };
 
 const stages = [
   "第一階段：單身生活",
-  "第二階段：自然相識",
-  "第三階段：曖昧升溫",
-  "第四階段：正式約會",
-  "第五階段：確認關係",
+  "第二階段：危險接觸",
+  "第三階段：秘密曖昧",
+  "第四階段：欺瞞升溫",
+  "第五階段：報復逼近",
   "第六階段：結局",
 ];
 
@@ -98,7 +98,7 @@ function finishSetup() {
       player: { 壓力: rand(8, 18), 猶豫: rand(8, 18), 界線感: 50 },
     },
     log: [],
-    lastTitle: "心動還沒說出口",
+    lastTitle: "雨還沒落下來",
   };
 
   $("setup").classList.add("hidden");
@@ -108,21 +108,21 @@ function finishSetup() {
 
 function renderOpening() {
   const s = game.setup;
-  const title = "開場：心動還沒說出口";
+  const title = "開場：雨還沒落下來";
   const paragraphs = [
-    `你是${s.identity}。在這座通勤時間總是被雨水拖長的城市裡，你目前處在「${s.relation}」的狀態，生活不算空白，只是還沒有遇到真正想一起往前走的人。`,
-    `${game.names.partner}是${game.traits.partner}，像一杯剛好溫度的熱茶，讓人覺得安心；${game.names.danger}則以「${s.dangerType}」的身份靠近你，帶來另一種更明亮、更直接的心動。兩個人都是可以被攻略的戀愛角色，差別只在於節奏與相處方式。`,
-    `你選擇的是「${s.style}」風格，情感濃度為「${s.heat}」。故事會從單身、曖昧、約會走向正常戀愛；牽手、擁抱、親吻或過夜陪伴都會以尊重界線、非露骨的方式呈現。第 1 週開始，你有 5 個行動點。每次選擇都會推動關係，也會改變你對自己的理解。`,
+    `你是${s.identity}。在這座通勤時間總是被雨水拖長的城市裡，你目前處在「${s.relation}」的狀態：沒有婚姻，沒有現任，也沒有任何既定伴侶。這不是背叛某個人，而是你還沒學會如何處理同時靠近你的心動。`,
+    `${game.names.partner}是${game.traits.partner}，像一個能讓生活變穩的人；${game.names.danger}則以「${s.dangerType}」的身份闖進你的日常，帶著更直接、更危險的吸引。兩個人都可以被攻略，但你對任何一方的含糊，都可能變成另一方眼裡的欺瞞。`,
+    `你選擇的是「${s.style}」風格，情感濃度為「${s.heat}」。本版本保留欺瞞、秘密、試探、報復與關係失控；攻略過程可以有肢體接觸甚至過夜，但不使用已婚、現任或既定伴侶設定。第 1 週開始，你有 5 個行動點。每次選擇都會留下痕跡。`,
   ];
   showScene(title, paragraphs, openingChoices());
 }
 
 function openingChoices() {
   return [
-    makeChoice("約穩定型角色吃一頓晚餐", "stable"),
-    makeChoice("回覆心動型角色的曖昧訊息", "danger"),
-    makeChoice("先整理自己的心意", "self"),
-    makeChoice("翻看 IG 頁面，了解兩人的近況", "social"),
+    makeChoice("約主要攻略角色吃一頓晚餐", "stable"),
+    makeChoice("回覆危險對象的試探訊息", "danger"),
+    makeChoice("把兩邊的訊息都暫時晾著", "self"),
+    makeChoice("翻看 IG 頁面，觀察兩人的動態", "social"),
   ];
 }
 
@@ -167,8 +167,8 @@ function deltaAvatar(group) {
 }
 
 function deltaDisplayName(group) {
-  if (group === "partner") return `穩定型角色｜${game.names.partner}`;
-  if (group === "danger") return `心動型角色｜${game.names.danger}`;
+  if (group === "partner") return `主要攻略角色｜${game.names.partner}`;
+  if (group === "danger") return `危險對象｜${game.names.danger}`;
   return `你｜${game.setup.identity}`;
 }
 
@@ -208,7 +208,7 @@ function hideDeltaPopup() {
 }
 
 function groupLabel(group) {
-  return group === "partner" ? "穩定型角色" : group === "danger" ? "心動型角色" : "玩家";
+  return group === "partner" ? "主要攻略角色" : group === "danger" ? "危險對象" : "玩家";
 }
 
 function advanceStage() {
@@ -242,7 +242,7 @@ function riskPulse(type) {
   const p = game.stats.partner;
   const d = game.stats.danger;
   const pl = game.stats.player;
-  if (type === "danger" && (d.心動 + d.主動 > 95 || game.setup.style.includes("群像戀愛"))) {
+  if (type === "danger" && (d.心動 + d.主動 > 95 || game.setup.style.includes("高壓") || game.setup.style.includes("報復"))) {
     p.不安 = clamp(p.不安 + rand(2, 5));
     pl.壓力 = clamp(pl.壓力 + rand(3, 7));
   }
@@ -255,7 +255,7 @@ function buildScene(choice) {
   const pn = game.names.partner;
   const dn = game.names.danger;
   const style = game.setup.style;
-  const highPressure = style.includes("群像戀愛");
+  const highPressure = style.includes("高壓") || style.includes("報復");
   const heat = game.setup.heat;
   const scenePools = {
     stable: [
@@ -389,35 +389,35 @@ function buildScene(choice) {
     ],
     lie: [
       {
-        id: "boundary-evening",
-        title: "留給自己的晚上",
+        id: "lie-overtime",
+        title: "一個看似完整的理由",
         delta: game.stats.player.界線感 > 60
-          ? { partner: { 愛意: 1, 信任: 2, 親密: 0, 不安: -2, 距離: -1 }, danger: { 心動: 1, 吸引: 1, 依賴: 1, 主動: 0, 在意: 0 }, player: { 壓力: -8, 猶豫: -3, 界線感: 5 } }
-          : { partner: { 愛意: 0, 信任: 1, 親密: 0, 不安: -1, 距離: 0 }, danger: { 心動: 1, 吸引: 1, 依賴: 0, 主動: 1, 在意: 0 }, player: { 壓力: -5, 猶豫: -1, 界線感: 4 } },
+          ? { partner: { 愛意: -1, 信任: -1, 親密: -1, 不安: 2, 距離: 3 }, danger: { 心動: 5, 吸引: 2, 依賴: 3, 主動: 4, 在意: 0 }, player: { 壓力: 15, 猶豫: 12, 界線感: 5 } }
+          : { partner: { 愛意: -3, 信任: -5, 親密: -2, 不安: 12, 距離: 9 }, danger: { 心動: 4, 吸引: 2, 依賴: 2, 主動: 5, 在意: 1 }, player: { 壓力: 20, 猶豫: 14, 界線感: -8 } },
         paragraphs: [
-          `你沒有急著回覆任何邀約，而是把晚上留給自己。洗完澡後，你把手機放遠，認真想了一遍：你喜歡的是被需要，還是真的想和某個人一起生活？`,
-          `${pn}傳來一張晚餐照片，${dn}則問你明天要不要喝咖啡。你沒有逃避，只是決定等心情穩一點再好好回答。`,
-          `這個選擇不浪漫，卻很重要。健康的關係不是每一秒都黏在一起，而是你能在靠近前先照顧好自己。`,
+          `你說今晚要加班，語氣平穩到連自己都差點相信。${pn}在電話那頭停了一下，只回：「好，那你別太晚。」`,
+          `掛斷後你沒有立刻鬆一口氣。欺瞞真正可怕的地方不是說出口，而是它需要你接下來用更多細節去維護：幾點下班、誰在場、為什麼背景音那麼安靜。`,
+          `${dn}看著你收起手機，低聲問：「你每次都這樣嗎？」沒有審判，卻比審判更難受。`,
         ],
       },
       {
-        id: "boundary-chat",
-        title: "把話說清楚",
-        delta: { partner: { 愛意: 2, 信任: 3, 親密: 1, 不安: -3, 距離: -2 }, danger: { 心動: 2, 吸引: 1, 依賴: 1, 主動: 1, 在意: 0 }, player: { 壓力: -6, 猶豫: -4, 界線感: 6 } },
+        id: "lie-delete",
+        title: "刪除之前先看了一眼",
+        delta: { partner: { 愛意: -2, 信任: -3, 親密: -1, 不安: game.stats.player.界線感 > 60 ? 3 : 10, 距離: 5 }, danger: { 心動: 4, 吸引: 1, 依賴: 4, 主動: 7, 在意: 2 }, player: { 壓力: 13, 猶豫: 11, 界線感: game.stats.player.界線感 > 60 ? 4 : -5 } },
         paragraphs: [
-          `你打開聊天框，沒有故意曖昧，也沒有把話說得過滿。你只是誠實地寫下：「我很珍惜和你相處，但我想慢一點。」`,
-          `${dn}回得很快：「可以，我也想好好認識你。」這句話沒有戲劇性的拉扯，卻讓你鬆了一口氣。`,
-          `你忽然發現，界線不是拒絕心動，而是讓心動有機會長成比較好的樣子。`,
+          `你打開和${dn}的聊天記錄，手指停在刪除鍵上。那些句子其實沒有多露骨，甚至很多都只是「到了嗎」「今天辛苦了」，可它們排列在一起，就成了一段不能被看見的關係。`,
+          `你刪掉之前又看了一眼。就是這一眼，讓你知道自己不是怕被發現而已，你也捨不得那部分被證明存在過的自己。`,
+          `手機鎖屏後，${pn}剛好傳來訊息：「你剛剛在笑什麼？」你才發現自己的表情沒有收乾淨。`,
         ],
       },
       {
-        id: "boundary-sleepover",
-        title: "過夜前的約定",
-        delta: { partner: { 愛意: 3, 信任: 4, 親密: 3, 不安: -2, 距離: -2 }, danger: { 心動: 4, 吸引: 3, 依賴: 2, 主動: 2, 在意: 1 }, player: { 壓力: -4, 猶豫: -2, 界線感: 5 } },
+        id: "lie-location",
+        title: "定位關掉的那一秒",
+        delta: { partner: { 愛意: -3, 信任: -5, 親密: -2, 不安: 9, 距離: 7 }, danger: { 心動: 5, 吸引: 2, 依賴: 3, 主動: 5, 在意: 1 }, player: { 壓力: 18, 猶豫: 12, 界線感: -2 } },
         paragraphs: [
-          `雨下得太大，你們決定今晚不勉強趕末班車。過夜這件事被說得很清楚：各自休息、互相尊重，不用把親密推得比心意更快。`,
-          `睡前你們並肩坐在窗邊聊天，手指碰到一起時，誰都沒有急著更進一步。那種被尊重的安心，反而比任何衝動都更讓人心動。`,
-          `隔天早上，城市被雨洗得很亮。你知道關係往前了一小步，也知道這一步是你們一起同意的。`,
+          `你把手機定位關掉。系統跳出提醒時，你盯著那行字，突然覺得科技比人誠實得多，它至少會在你做出選擇前問一次確認。`,
+          `${dn}在街角等你，沒有催，只是把手插在外套口袋裡。你走過去的每一步都很慢，像在給自己最後反悔的時間。`,
+          `可你沒有反悔。真正讓人害怕的不是衝動，是你發現自己其實很清醒。`,
         ],
       },
     ],
@@ -442,14 +442,14 @@ function takeEvent(type, events) {
 
 function nextChoices(previousType) {
   const base = [
-    makeChoice("主動安排和穩定型角色的約會", "stable"),
-    makeChoice("答應心動型角色單獨約會", "danger"),
-    makeChoice("安排自己的獨處時間", "self"),
-    makeChoice("暫時放慢兩邊訊息", "self"),
+    makeChoice("主動安排和主要攻略角色的約會", "stable"),
+    makeChoice("答應危險對象單獨見面", "danger"),
+    makeChoice("用加班當理由製造空檔", "lie"),
+    makeChoice("暫時冷處理兩邊訊息", "self"),
   ];
-  if (game.stats.partner.不安 >= 30) base[0] = makeChoice("面對穩定型角色的試探", "stable");
-  if (game.stats.danger.主動 >= 55) base[1] = makeChoice("回應心動型角色的邀約", "danger");
-  if (previousType === "danger") base.push(makeChoice("整理聊天語氣與界線", "self"));
+  if (game.stats.partner.不安 >= 30) base[0] = makeChoice("面對主要攻略角色的試探", "stable");
+  if (game.stats.danger.主動 >= 55) base[1] = makeChoice("處理危險對象的逼近", "danger");
+  if (previousType === "danger") base.push(makeChoice("刪除聊天記錄", "lie"));
   if (game.ap <= 2) base.push(makeChoice("提前結束本週", "nextWeek"));
   return base;
 }
@@ -469,43 +469,43 @@ function nextWeek() {
 function weeklyEvent() {
   const pn = game.names.partner;
   const dn = game.names.danger;
-  const uncertainty = game.stats.partner.不安;
+  const suspicion = game.stats.partner.不安;
   if (game.week >= 10) {
     return {
-      title: "最後幾週的心意整理",
-      delta: { partner: { 愛意: 2, 信任: 1, 親密: 1, 不安: 2, 距離: 0 }, danger: { 心動: 3, 吸引: 2, 依賴: 2, 主動: 3, 在意: 2 }, player: { 壓力: 6, 猶豫: 4, 界線感: 2 } },
+      title: "最後幾週的倒數",
+      delta: { partner: { 愛意: -2, 信任: -2, 親密: -1, 不安: 5, 距離: 4 }, danger: { 心動: 4, 吸引: 2, 依賴: 4, 主動: 6, 在意: 4 }, player: { 壓力: 12, 猶豫: 10, 界線感: -2 } },
       paragraphs: [
-        `第 ${game.week} 週開始時，你感覺故事快要走到一個需要回答的地方。不是誰逼你選，而是你終於想知道，自己真正期待的是哪一種陪伴。`,
-        `${pn}和${dn}都用自己的方式靠近你。你可以告白，也可以暫緩，重點是不要用模糊拖住任何人的期待。`,
+        `第 ${game.week} 週開始時，你明顯感覺到時間不再站在你這邊。每個人都還在照常生活，但照常只是表面，真正的東西已經在底下發燙。`,
+        `${pn}開始不再把疑問吞回去，${dn}也不再滿足於只能在縫隙裡出現。你知道，這段危險曖昧最晚會在第 12 週前走到結局，不會永遠用「下次再說」拖著。`,
       ],
     };
   }
-  if (uncertainty >= 70) {
+  if (suspicion >= 70) {
     return {
-      title: "週一早晨的談心",
-      delta: { partner: { 愛意: 2, 信任: 3, 親密: 2, 不安: -6, 距離: -4 }, danger: { 心動: 1, 吸引: 0, 依賴: 1, 主動: 1, 在意: 1 }, player: { 壓力: -8, 猶豫: -5, 界線感: 5 } },
+      title: "週一早晨的質問",
+      delta: { partner: { 愛意: -8, 信任: -10, 親密: -5, 不安: 8, 距離: 12 }, danger: { 心動: 2, 吸引: 0, 依賴: 3, 主動: 8, 在意: 3 }, player: { 壓力: 16, 猶豫: 12, 界線感: -5 } },
       paragraphs: [
-        `新的一週開始，${pn}把早餐放在桌上，問你：「你最近是不是有很多心事？」`,
-        `你沒有把問題推開，而是承認自己還在整理感情。這不是完美答案，但它足夠真誠，也讓你們有機會重新調整相處的距離。`,
+        `新的一週開始得很糟。${pn}沒有繞圈子，只問你：「你最近到底在瞞我什麼？」`,
+        `這不是吵架的語氣，甚至很平靜。可你知道，平靜常常代表對方已經在心裡走過很多遍崩潰的路。窗外天光很白，你忽然覺得所有藉口都太薄。`,
       ],
     };
   }
   if (game.stats.danger.主動 >= 75) {
     return {
-      title: "想更常見面",
-      delta: { partner: { 愛意: 0, 信任: 1, 親密: 0, 不安: 1, 距離: 0 }, danger: { 心動: 5, 吸引: 3, 依賴: 4, 主動: 5, 在意: 3 }, player: { 壓力: 4, 猶豫: 3, 界線感: 2 } },
+      title: "不能只在縫隙裡見面",
+      delta: { partner: { 愛意: -3, 信任: -2, 親密: -3, 不安: 5, 距離: 4 }, danger: { 心動: 7, 吸引: 4, 依賴: 8, 主動: 10, 在意: 8 }, player: { 壓力: 14, 猶豫: 9, 界線感: 2 } },
       paragraphs: [
-        `${dn}在週一中午問你：「這週可以多見一次嗎？不用很久，散步也可以。」`,
-        `你聽見對方語氣裡的期待，也提醒自己不要只被氣氛推著走。喜歡可以靠近，但靠近也需要明確、舒服、彼此同意的節奏。`,
+        `${dn}在週一中午把你堵在樓梯間，聲音壓得很低：「我不想每次都像借來的時間。」`,
+        `你看見對方眼底的疲憊和不甘。這段關係開始長出自己的要求，不再滿足於一條深夜訊息、一杯順路咖啡。你沒有被逼迫，卻清楚感覺到選擇正在縮窄。`,
       ],
     };
   }
   return {
-    title: pickUnusedWeekly(["新的一週，新的靠近", "週一的天氣預報", "還能裝作不心動嗎", "週三的未接來電", "電梯裡的微笑", "晚餐桌上的邀約"]),
-    delta: { partner: { 愛意: 1, 信任: 1, 親密: 1, 不安: 0, 距離: -1 }, danger: { 心動: 2, 吸引: 1, 依賴: 1, 主動: 2, 在意: 1 }, player: { 壓力: 2, 猶豫: 2, 界線感: 1 } },
+    title: pickUnusedWeekly(["新的一週，舊的問題", "週一的天氣預報", "還能裝作沒事嗎", "週三的未接來電", "電梯裡的沉默", "晚餐桌上的空位"]),
+    delta: { partner: { 愛意: 0, 信任: 0, 親密: 0, 不安: 1, 距離: 0 }, danger: { 心動: 2, 吸引: 1, 依賴: 1, 主動: 2, 在意: 1 }, player: { 壓力: 4, 猶豫: 3, 界線感: 0 } },
     paragraphs: [
-      `第 ${game.week} 週開始。城市照常運轉，捷運照常擁擠，但你發現自己開始期待某些訊息提示。`,
-      `${pn}傳來一張早餐照片，${dn}問你：「今天會見到你嗎？」兩句話都很普通，卻都讓你認真想了很久。`,
+      `第 ${game.week} 週開始。城市照常運轉，捷運照常擁擠，所有人看起來都能把自己的生活處理得很好。`,
+      `${pn}傳來一張早餐照片，問你今天會不會準時回訊息。幾乎同一時間，${dn}問你：「今天會見到你嗎？」兩句話都很普通，普通到你無法責怪任何人。`,
     ],
   };
 }
@@ -532,58 +532,77 @@ function resolveEnding(reason) {
   const pn = game.names.partner;
   const dn = game.names.danger;
   const { partner, danger, player } = game.stats;
-  const readyForPartner = partner.愛意 >= 55 && partner.信任 >= 45 && player.界線感 >= 45;
-  const readyForDanger = danger.心動 >= 55 && danger.吸引 >= 35 && danger.主動 >= 35 && player.界線感 >= 35;
-  const needsPause = player.壓力 >= 80 || player.猶豫 >= 75;
+  const highCollapse = partner.不安 >= 85 || partner.信任 <= 25 || partner.距離 >= 75;
+  const guiltyRepair = player.猶豫 >= 70 && partner.愛意 >= 55 && partner.信任 >= 35;
+  const dangerBreak = danger.主動 >= 78 || danger.在意 >= 70;
+  const quietExit = danger.心動 < 45 && partner.不安 < 50 && player.猶豫 >= 45;
   const delta = { partner: { 愛意: 0, 信任: 0, 親密: 0, 不安: 0, 距離: 0 }, danger: { 心動: 0, 吸引: 0, 依賴: 0, 主動: 0, 在意: 0 }, player: { 壓力: 0, 猶豫: 0, 界線感: 0 } };
 
-  if (readyForPartner && partner.愛意 >= danger.心動) {
+  if (guiltyRepair && !dangerBreak) {
     return {
-      title: "大結局｜穩定告白",
+      title: "大結局｜主動坦白",
       focus: "partner",
       delta,
       paragraphs: [
-        `第 ${game.week} 週，你約${pn}去那間常常路過卻一直沒進去的甜點店。你沒有準備誇張台詞，只是把這段時間的心意說清楚。`,
-        `${pn}聽完後笑了一下，說：「我也想試試看，慢慢來也可以。」你們沒有立刻變成童話裡的人，卻開始了一段正常、清楚、彼此尊重的戀愛。`,
-        `結局：HE1 穩定戀愛。你們決定正式交往，從日常約會、牽手與慢慢建立信任開始。`,
+        `第 ${game.week} 週，或者更準確地說，在你終於撐不下去的那天晚上，你沒有再編新的理由。你把手機放在桌上，對${pn}說：「我有事要告訴你，可能會很難聽。」`,
+        `${pn}很久沒有說話。你看見對方眼裡的震動、受傷，還有一點點你最害怕看見的失望。坦白沒有讓事情變好，它只是讓所有人終於站到真相面前。`,
+        `${dn}在隔天收到你的訊息後，只回了一句：「我知道了。」這不是原諒，也不是祝福，而是一種把自己從你的混亂裡拔出來的清醒。`,
+        `結局：HE1 主動坦白。沒有已婚，也沒有現任，但欺瞞仍然有代價。你和${pn}沒有立刻和好，接下來會是很長的修復、追問、沉默和重新建立邊界。`,
       ],
     };
   }
 
-  if (readyForDanger) {
+  if (quietExit && reason === "deadline") {
     return {
-      title: "大結局｜心動成真",
-      focus: "danger",
-      delta,
-      paragraphs: [
-        `第 ${game.week} 週，${dn}問你要不要一起看夜景。風吹得有點冷，你們靠得很近，卻仍然把每一步都說得清楚。`,
-        `你說自己也喜歡對方。${dn}沒有急著把氣氛推得更快，只是握住你的手，問：「那我們從下一次正式約會開始？」`,
-        `結局：HE2 心動成真。你們把曖昧變成正常戀愛，親密建立在同意、尊重與清楚溝通上。`,
-      ],
-    };
-  }
-
-  if (needsPause || reason === "truth") {
-    return {
-      title: "大結局｜先照顧自己",
+      title: "大結局｜悄然抽身",
       focus: "self",
       delta,
       paragraphs: [
-        `你發現自己太急著回答別人的期待，反而忘了問自己真正需要什麼。於是你把兩邊的邀約都放慢，認真安排一段只屬於自己的時間。`,
-        `${pn}和${dn}都沒有被你拖著等待。你把話說清楚，也謝謝他們曾經帶給你的心動。`,
-        `結局：GE1 自我成長。這一輪沒有進入戀愛，但你學會了界線、誠實與照顧自己。`,
+        `第 12 週前，你終於做了一個不像戲劇高潮的決定：不再回覆曖昧的訊息，不再把限時動態分給某個特定的人看，也不再用工作當作所有空白的藉口。`,
+        `${dn}察覺得很快，問你：「所以就這樣？」你看著那句話很久，最後只回：「對不起。」這三個字很輕，但比任何解釋都更像句號。`,
+        `${pn}沒有知道全部。或者說，沒有在這一輪知道全部。你的生活看似恢復平穩，可你心裡很清楚，有些東西不是沒爆炸就等於沒發生。`,
+        `結局：隱藏結局「悄然抽身」。你全身而退，代價是往後很久都無法理直氣壯地享受平靜。`,
+      ],
+    };
+  }
+
+  if (dangerBreak) {
+    return {
+      title: "大結局｜危險對象失控",
+      focus: "danger",
+      delta,
+      paragraphs: [
+        `${dn}沒有再等你選。第 ${game.week} 週，對方在 IG 發了一則只有你們看得懂的限時動態，文字很短：「借來的時間，總要有人還。」`,
+        `${pn}看到的時候沒有立刻質問，只把手機截圖遞到你面前。那一刻你知道，所有你以為藏得很好的曖昧，都已經被拼成一條完整的證據鏈。`,
+        `你試著解釋，卻發現語言在真相面前很窄。${dn}也沒有得到想要的答案，佔有、委屈和不甘一起往外翻，把三個人的生活都拖進同一場公開的難堪。`,
+        `結局：BE4 危險對象黑化報復。你沒有真正選擇任何人，最後也沒有人再相信你的選擇。`,
+      ],
+    };
+  }
+
+  if (highCollapse || reason === "truth") {
+    return {
+      title: "大結局｜徹底翻車",
+      focus: "self",
+      delta,
+      paragraphs: [
+        `真相不是某一天突然砸下來的。它其實早就存在於你晚回訊息的時間、刪掉的通知、說話前短暫的停頓裡。第 ${game.week} 週，${pn}終於把那些細節攤開。`,
+        `你坐在客廳裡，聽見自己的心跳聲。${pn}問的每一句都很準，準到你連生氣都沒有資格。你可以否認一件事，卻無法否認所有事情排列起來的方向。`,
+        `${dn}在另一端等你的回覆。可這一次，你誰都安撫不了。你把兩邊都拖到疼痛裡，也終於被疼痛反過來清算。`,
+        `結局：BE1 徹底翻車。這不是已婚或現任背叛，卻仍然是欺瞞造成的關係崩裂。`,
       ],
     };
   }
 
   return {
-    title: "大結局｜友好收束",
+    title: "大結局｜雙線崩盤",
     focus: "self",
     delta,
     paragraphs: [
-      `第 12 週，你沒有選擇一場戲劇化告白，而是分別和${pn}、${dn}好好吃了一頓飯。`,
-      `有些心動適合成為戀愛，有些心動則適合停在美好的朋友距離。你們沒有互相傷害，也沒有把模糊拖成負擔。`,
-      `結局：NE1 友好收束。你保留了溫柔，也把下一次戀愛留給更確定的自己。`,
+      `第 12 週，故事沒有等到一個漂亮的坦白，也沒有等到一場體面的告別。只是某天開始，${pn}不再主動問你幾點回訊息，${dn}也不再把每個深夜都留給你。`,
+      `你以為最糟糕的結局是爆發，後來才知道，冷掉也可以很殘忍。沒有尖銳的質問，沒有摔門，只有兩段關係同時把你從中心位置移開。`,
+      `你還是照常上班、吃飯、滑 IG，只是每次看到相似的街角、相似的訊息提示，都會想起自己曾經有很多次機會停下來。`,
+      `結局：BE2 雙線崩盤。你沒有失去全世界，但失去了兩個曾經認真朝你走來的人。`,
     ],
   };
 }
@@ -597,7 +616,7 @@ function endingAvatar(focus) {
 function endingFocusLabel(focus) {
   if (focus === "partner") return `你選擇面對：${game.names.partner}`;
   if (focus === "danger") return `結局核心人物：${game.names.danger}`;
-  return `自我成長：${game.setup.identity}`;
+  return `沒有選擇任何人：${game.setup.identity}`;
 }
 
 function renderEndingPage(ending = game.ending) {
@@ -641,18 +660,18 @@ function showScene(title, paragraphs, choices, delta = null) {
 
 function thresholdText() {
   const notes = [];
-  if (game.stats.partner.不安 >= 30) notes.push(`穩定型角色的不安已經越過試探線，對方開始記得你的時間差與語氣變化。`);
-  if (game.stats.partner.不安 >= 50) notes.push(`訊息節奏、邀約頻率與公開互動，都會影響下一次談心的氣氛。`);
-  if (game.stats.player.猶豫 >= 70) notes.push(`猶豫太高，你開始失眠，白天容易恍神，也更可能突然想告白。`);
-  if (game.stats.player.壓力 >= 80) notes.push(`壓力有點高，你需要安排休息，才不會在重要對話裡說錯話。`);
+  if (game.stats.partner.不安 >= 30) notes.push(`主要攻略角色的不安已經越過試探線，對方開始記得你的時間差與語氣變化。`);
+  if (game.stats.partner.不安 >= 50) notes.push(`手機、定位、IG 摯友名單與貼文可見範圍，都可能變成下一次衝突的火種。`);
+  if (game.stats.player.猶豫 >= 70) notes.push(`猶豫太高，你開始失眠，白天容易恍神，也更可能突然想坦白。`);
+  if (game.stats.player.壓力 >= 80) notes.push(`壓力逼近臨界點，任何一句追問都可能讓你失控。`);
   if (!notes.length) return "";
   return `<p class="message">${notes.join(" ")}</p>`;
 }
 
 function renderStats() {
   const groups = [
-    ["穩定型角色", "partner"],
-    ["心動型角色", "danger"],
+    ["主要攻略角色", "partner"],
+    ["危險對象", "danger"],
     ["玩家狀態", "player"],
   ];
   $("stats").innerHTML = groups
@@ -682,20 +701,20 @@ $("freeForm").addEventListener("submit", (event) => {
   if (!value) return;
   const lowered = value.toLowerCase();
   let type = "self";
-  if (value.includes("穩定型角色") || value.includes("回家") || value.includes("告白") || value.includes("約會")) type = "stable";
-  if (value.includes("心動") || value.includes("訊息") || value.includes("見面") || value.includes("咖啡")) type = "danger";
-  if (value.includes("界線") || value.includes("獨處") || value.includes("過夜") || lowered.includes("boundary")) type = "lie";
+  if (value.includes("主要攻略") || value.includes("回訊息") || value.includes("坦白") || value.includes("約會")) type = "stable";
+  if (value.includes("危險") || value.includes("訊息") || value.includes("見面") || value.includes("咖啡")) type = "danger";
+  if (value.includes("騙") || value.includes("加班") || value.includes("刪") || value.includes("報復") || lowered.includes("lie")) type = "lie";
   $("freeInput").value = "";
   choose({ label: `自訂行動：${value}`, type });
 });
 
 $("saveBtn").addEventListener("click", () => {
-  localStorage.setItem("safe-romance-save", JSON.stringify(game));
+  localStorage.setItem("dangerous-ambiguous-save", JSON.stringify(game));
   alert("已保存。");
 });
 
 $("loadBtn").addEventListener("click", () => {
-  const raw = localStorage.getItem("safe-romance-save");
+  const raw = localStorage.getItem("dangerous-ambiguous-save");
   if (!raw) return alert("目前沒有存檔。");
   game = JSON.parse(raw);
   game.usedEvents = game.usedEvents || [];

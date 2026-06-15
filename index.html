@@ -3,18 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>心動戀愛模擬器</title>
+    <title>危險曖昧模擬器</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <main id="app" class="app">
       <section id="setup" class="setup-screen">
         <div class="setup-copy">
-          <p class="kicker">從單身到曖昧，再到正常戀愛</p>
-          <h1>心動戀愛模擬器</h1>
+          <p class="kicker">單身開局的多線危險關係</p>
+          <h1>危險曖昧模擬器</h1>
           <p class="content-warning">
-            這是 ACG-GAME 的兒童安全版。故事聚焦成年角色之間的健康戀愛、尊重界線與真誠溝通；
-            劇情可以包含牽手、擁抱、親吻、約會與非露骨的過夜陪伴，不包含外遇、操控、報復或露骨成人內容。
+            本版本保留欺瞞、試探、報復與關係失控等危險關係框架，但排除已婚、已有現任或既定伴侶設定。
+            角色皆為成年人；親密內容以非露骨方式呈現。
           </p>
         </div>
 
@@ -27,7 +27,7 @@
           <div id="setupOptions" class="option-grid"></div>
           <div id="customBox" class="custom-box hidden">
             <label for="customInput">自訂設定</label>
-            <textarea id="customInput" rows="4" placeholder="輸入你想要的角色、關係或故事氛圍。"></textarea>
+            <textarea id="customInput" rows="4" placeholder="輸入職業、角色性格、危險關係起點或你想保留的秘密。"></textarea>
           </div>
           <button id="nextSetup" class="primary-btn">下一步</button>
         </div>
@@ -36,7 +36,7 @@
       <section id="game" class="game-screen hidden">
         <aside class="sidebar">
           <div class="brand">
-            <span>心動戀愛</span>
+            <span>危險曖昧</span>
             <strong>第 <b id="weekNo">1</b> 週</strong>
           </div>
           <div class="portrait-stack">
@@ -48,16 +48,16 @@
               </div>
             </article>
             <article>
-              <img src="assets/partner-cutout.png" alt="穩定型攻略角色" />
+              <img src="assets/partner-cutout.png" alt="主要攻略角色" />
               <div>
-                <span>穩定型攻略角色</span>
+                <span>主要攻略角色</span>
                 <strong id="partnerName">沈予安</strong>
               </div>
             </article>
             <article>
-              <img src="assets/danger-cutout.png" alt="心動型攻略角色" />
+              <img src="assets/danger-cutout.png" alt="危險對象" />
               <div>
-                <span>心動型攻略角色</span>
+                <span>危險對象</span>
                 <strong id="dangerName">林晏</strong>
               </div>
             </article>
@@ -75,13 +75,13 @@
             <img src="assets/city-cat-cutout.png" alt="城市街景" />
             <div>
               <p id="phaseLabel">第一階段：單身生活</p>
-              <h2 id="sceneTitle">初遇</h2>
+              <h2 id="sceneTitle">開場</h2>
             </div>
           </header>
           <article id="story" class="story"></article>
           <div id="choices" class="choices"></div>
           <form id="freeForm" class="free-form">
-            <input id="freeInput" type="text" placeholder="輸入自訂行動，例如：安排約會、傳訊息、牽手、邀請過夜聊天。" />
+            <input id="freeInput" type="text" placeholder="輸入自訂行動，例如：回覆危險訊息、隱藏限動、過夜、坦白或報復。" />
             <button type="submit">送出</button>
           </form>
         </section>
@@ -89,7 +89,7 @@
 
       <section id="endingPage" class="ending-page hidden">
         <div class="ending-art">
-          <img id="endingAvatar" src="assets/lead-cutout.png" alt="結局角色頭像" />
+          <img id="endingAvatar" src="assets/lead-cutout.png" alt="大結局角色頭像" />
         </div>
         <article class="ending-copy">
           <p id="endingBadge">大結局</p>
@@ -98,7 +98,7 @@
           <div id="endingStory"></div>
           <div class="ending-actions">
             <button id="endingRestart" type="button">重新開始新周目</button>
-            <button id="endingBack" type="button">回到結局畫面</button>
+            <button id="endingBack" type="button">回到劇情紀錄</button>
           </div>
         </article>
       </section>
