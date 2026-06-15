@@ -68,6 +68,31 @@ const clamp = (n) => Math.max(0, Math.min(100, Math.round(n)));
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
+const avatarPool = [
+  "assets/lead-cutout.png",
+  "assets/partner-cutout.png",
+  "assets/danger-cutout.png",
+  "assets/walk-cutout.png",
+];
+
+function randomAvatars() {
+  const shuffled = [...avatarPool].sort(() => Math.random() - 0.5);
+  return {
+    player: shuffled[0],
+    partner: shuffled[1],
+    danger: shuffled[2],
+  };
+}
+
+function avatarFor(group) {
+  const fallback = {
+    player: "assets/lead-cutout.png",
+    partner: "assets/partner-cutout.png",
+    danger: "assets/danger-cutout.png",
+  };
+  return game?.avatars?.[group] || fallback[group] || fallback.player;
+}
+
 function allTargetNames() {
   return [...pools.names.male, ...pools.names.female, ...pools.names.neutral];
 }
@@ -134,6 +159,7 @@ function finishSetup() {
     ended: false,
     setup: { ...setupData, identity, playerGender, relation, targetGender, dangerType },
     names: { partner: partnerName, danger: dangerName },
+    avatars: randomAvatars(),
     traits: { partner: pick(pools.partnerTraits), danger: pick(pools.dangerTraits) },
     stats: {
       partner: { 愛意: rand(18, 32), 信任: rand(25, 42), 親密: rand(8, 20), 不安: rand(8, 18), 距離: rand(0, 8) },
@@ -204,9 +230,9 @@ function deltaItems(values) {
 }
 
 function deltaAvatar(group) {
-  if (group === "partner") return "assets/partner-cutout.png";
-  if (group === "danger") return "assets/danger-cutout.png";
-  return "assets/lead-cutout.png";
+  if (group === "partner") return avatarFor("partner");
+  if (group === "danger") return avatarFor("danger");
+  return avatarFor("player");
 }
 
 function deltaDisplayName(group) {
@@ -651,9 +677,9 @@ function resolveEnding(reason) {
 }
 
 function endingAvatar(focus) {
-  if (focus === "partner") return "assets/partner-cutout.png";
-  if (focus === "danger") return "assets/danger-cutout.png";
-  return "assets/lead-cutout.png";
+  if (focus === "partner") return avatarFor("partner");
+  if (focus === "danger") return avatarFor("danger");
+  return avatarFor("player");
 }
 
 function endingFocusLabel(focus) {
@@ -684,6 +710,9 @@ function showScene(title, paragraphs, choices, delta = null) {
   $("playerRole").textContent = playerProfileLabel();
   $("partnerName").textContent = game.names.partner;
   $("dangerName").textContent = game.names.danger;
+  $("playerAvatar").src = avatarFor("player");
+  $("partnerAvatar").src = avatarFor("partner");
+  $("dangerAvatar").src = avatarFor("danger");
   const apLine = `<p class="message">目前行動點：${game.ap} / 5。關係階段：${stages[game.stage]}。距離大結局最多還有 ${Math.max(0, 12 - game.week)} 週。</p>`;
   const deltaLine = hasDelta(delta) ? `<p class="delta">數值變動：${deltaText(delta)}</p>` : "";
   $("story").innerHTML = paragraphs.map((p) => `<p>${p}</p>`).join("") + apLine + deltaLine + thresholdText();
@@ -761,6 +790,7 @@ $("loadBtn").addEventListener("click", () => {
   if (!raw) return alert("目前沒有存檔。");
   game = JSON.parse(raw);
   game.usedEvents = game.usedEvents || [];
+  game.avatars = game.avatars || randomAvatars();
   game.ended = Boolean(game.ended);
   $("setup").classList.add("hidden");
   if (game.ended && game.ending) {
