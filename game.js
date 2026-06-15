@@ -138,7 +138,7 @@ async function loadLocalAI() {
   }
   if (localAI.loading || localAI.skipped) return;
   if (!supportsClientAI()) {
-    setLocalAIStatus("此瀏覽器或目前網址不支援 WebGPU，將使用規則劇情開始。", 100);
+    setLocalAIStatus("此瀏覽器或目前網址不支援 WebGPU，將進入陽春版。", 100);
     return;
   }
 
@@ -158,7 +158,7 @@ async function loadLocalAI() {
   } catch (error) {
     localAI.lastError = error?.message || String(error);
     console.error("Client-side AI failed to load", error);
-    setLocalAIStatus("本地AI載入失敗，將使用規則劇情開始。", 100);
+    setLocalAIStatus("本地AI載入失敗，將進入陽春版。", 100);
   } finally {
     localAI.loading = false;
   }
@@ -217,7 +217,7 @@ async function generateClientAIScene(choice, scene) {
   } catch (error) {
     localAI.lastError = error?.message || String(error);
     console.error("Client-side AI scene generation failed", error);
-    setLocalAIStatus("本地AI本次生成失敗，已使用規則劇情");
+    setLocalAIStatus("本地AI本次生成失敗，本段已使用陽春版劇情");
     return scene;
   }
 }
@@ -954,7 +954,7 @@ function restartGame() {
 
 $("skipAiBtn").addEventListener("click", () => {
   localAI.skipped = true;
-  setLocalAIStatus("已略過本地AI，使用規則劇情開始。", 100);
+  setLocalAIStatus("已選擇陽春版，不載入 WebLLM。", 100);
   startGameAfterAILoad();
 });
 $("restartBtn").addEventListener("click", restartGame);
