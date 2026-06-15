@@ -35,14 +35,20 @@
 
       <section id="aiLoading" class="ai-loading hidden">
         <div class="ai-loading-card">
-          <p class="kicker">Client-Side AI</p>
-          <h2>正在載入本地劇情模型</h2>
-          <p id="aiLoadingDetail">準備檢查 WebGPU 與下載模型。</p>
-          <div class="ai-progress" aria-label="本地 AI 載入進度">
-            <i id="aiProgressBar"></i>
+          <p class="kicker">LLM API</p>
+          <h2>輸入 LLM API Key</h2>
+          <p id="aiLoadingDetail">使用 OpenAI-compatible Chat Completions 生成劇情。API Key 只保存在本頁記憶體，不會寫入存檔。</p>
+          <div class="api-form">
+            <label for="llmApiKey">API Key</label>
+            <input id="llmApiKey" type="password" autocomplete="off" placeholder="sk-..." />
+            <label for="llmEndpoint">API Endpoint</label>
+            <input id="llmEndpoint" type="url" value="https://api.openai.com/v1/chat/completions" />
+            <label for="llmModel">Model</label>
+            <input id="llmModel" type="text" value="gpt-4o-mini" />
           </div>
-          <strong id="aiProgressLabel">0%</strong>
-          <button id="skipAiBtn" type="button">體驗陽春版，不載入 WebLLM</button>
+          <strong id="aiProgressLabel">尚未啟用</strong>
+          <button id="startApiBtn" type="button">使用 LLM API 開始</button>
+          <button id="skipAiBtn" type="button">體驗陽春版，不使用 LLM API</button>
         </div>
       </section>
 
@@ -82,7 +88,7 @@
             <button id="restartBtn" title="重新開始">重開</button>
           </div>
           <div class="ai-panel">
-            <span id="localAiStatus">本地AI狀態：尚未載入</span>
+            <span id="localAiStatus">LLM狀態：尚未設定</span>
           </div>
         </aside>
 

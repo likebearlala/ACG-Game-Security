@@ -1,6 +1,6 @@
 # 劇情生成技術說明
 
-本專案的劇情預設由前端 `game.js` 內建的敘事規則、隨機資料池、事件模板、數值系統與結局條件組合出來；玩家也可以選擇啟用 WebLLM Client-Side AI，讓瀏覽器在本機生成場景段落。兩種模式都不需要自建推論伺服器、資料庫或 API key。
+本專案的劇情預設由前端 `game.js` 內建的敘事規則、隨機資料池、事件模板、數值系統與結局條件組合出來；玩家也可以選擇啟用 LLM API 生成模式，讓瀏覽器用玩家輸入的 API Key 呼叫 OpenAI-compatible Chat Completions。API Key 只保存在本頁記憶體，不寫入存檔。
 
 ## 核心概念
 
@@ -156,29 +156,30 @@
 
 這些變因組合後，會讓每一輪的劇情順序、角色感覺與結局走向不同。
 
-## Client-Side AI 本地生成模式
+## LLM API 生成模式
 
-目前專案已加入進入遊戲前的 Client-Side AI 載入流程。玩家完成七步開局設定後，畫面會先切到本地 AI 進度條，前端再動態匯入 WebLLM：
+目前專案已改為進入遊戲前輸入 LLM API Key。玩家完成七步開局設定後，畫面會要求填入：
 
-```js
-import("https://esm.run/@mlc-ai/web-llm")
+- API Key
+- OpenAI-compatible Chat Completions endpoint
+- Model 名稱
+
+預設 endpoint 是：
+
+```text
+https://api.openai.com/v1/chat/completions
 ```
 
-並用 `CreateMLCEngine()` 載入模型：
-
-```js
-Llama-3.2-1B-Instruct-q4f16_1-MLC
-```
+API Key 只存在瀏覽器記憶體中，不會寫入 localStorage，也不會跟遊戲存檔一起保存。玩家也可以選擇「陽春版」，完全不使用 LLM API。
 
 這個模式的特點：
 
-- 模型下載、快取與推論都在玩家瀏覽器端進行。
-- 不需要後端伺服器或付費推論 API。
-- 需要安全環境與 WebGPU 支援。
-- 第一次啟用會下載模型，時間取決於網路與裝置效能。
-- 如果模型載入失敗、玩家選擇陽春版、或生成格式不合格，系統會使用不載入 WebLLM 的規則式劇情。
+- 不使用 WebGPU。
+- 不下載 WebLLM 模型。
+- 由玩家自己的 API Key 承擔 LLM 呼叫。
+- 若 API 呼叫失敗或回覆格式不合格，該段會 fallback 到陽春版規則劇情。
 
-## 本地 AI 如何接入劇情
+## LLM API 如何接入劇情
 
 原本的規則式事件仍由 `buildScene()` 和 `weeklyEvent()` 產生基礎場景，包含：
 
@@ -187,23 +188,22 @@ Llama-3.2-1B-Instruct-q4f16_1-MLC
 - 數值變動
 - 行動類型
 
-啟用本地 AI 後，流程變成：
+輸入 API Key 並啟用 LLM 後，流程變成：
 
 1. 玩家做出選擇。
 2. `buildScene()` 先產生一個基礎事件。
 3. `sceneGenerationPrompt()` 將目前 `game` 狀態、角色資料、數值、最近選擇與原始段落整理成 prompt。
-4. `generateClientAIScene()` 呼叫瀏覽器內的 WebLLM 模型。
+4. `generateClientAIScene()` 用玩家輸入的 API Key 呼叫 OpenAI-compatible Chat Completions。
 5. 模型回傳 2 到 4 段繁體中文劇情。
 6. 系統保留原本事件的 `delta` 數值變動，只替換場景段落。
 
 這樣做的原因是：AI 負責文字變化，規則系統仍負責遊戲平衡、階段推進與結局判定。也就是說，AI 不會直接改數值，不會任意改結局條件，遊戲仍保有可控性。
 
-## Client-Side AI 的限制
+## LLM API 模式的限制
 
-- 不是所有瀏覽器都支援 WebGPU。
-- 手機或低階筆電可能載入很慢，甚至無法載入模型。
-- 首次模型下載不是伺服器成本，但會消耗玩家端流量。
-- CDN 與模型檔仍需要網路取得；快取後才比較接近離線體驗。
-- 本地模型可能偶爾輸出格式不合格，所以程式保留 fallback。
+- API Key 放在前端只適合玩家輸入自己的 key，不適合放站方私鑰。
+- 不同 LLM 供應商的 CORS、endpoint 與模型名稱可能不同。
+- API 呼叫會產生玩家自己的供應商費用。
+- 若 API 失敗，系統會使用陽春版規則劇情。
 
-因此目前採用「規則式生成為底，本地 AI 增強文字」的混合架構：零後端推論成本，同時不犧牲可玩性。
+因此目前採用「規則式生成為底，LLM API 增強文字」的混合架構：可以體驗生成式劇情，又不會讓 API 失敗時整個遊戲不能玩。

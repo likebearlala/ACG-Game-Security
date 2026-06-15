@@ -132,36 +132,38 @@ h1 {
   line-height: 1.7;
 }
 
-.ai-progress {
-  height: 12px;
-  margin: 18px 0 10px;
-  border-radius: 99px;
-  background: #e8e5dc;
-  overflow: hidden;
-}
-
-.ai-progress i {
-  display: block;
-  width: 0%;
-  height: 100%;
-  background: var(--teal);
-  transition: width 0.2s ease;
-}
-
 #aiProgressLabel {
   display: block;
   color: var(--wine);
   font-size: 20px;
 }
 
+#startApiBtn,
 #skipAiBtn {
   width: 100%;
   min-height: 44px;
-  margin-top: 18px;
+  margin-top: 14px;
   border-radius: 8px;
   background: var(--ink);
   color: #fff;
   font-weight: 800;
+}
+
+#skipAiBtn {
+  background: #edf2ef;
+  color: var(--ink);
+}
+
+.api-form {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.api-form label {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .step-indicator {

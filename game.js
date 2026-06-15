@@ -76,12 +76,13 @@ const avatarPool = [
   "assets/walk-cutout.png",
 ];
 
-const CLIENT_AI_MODEL = "Llama-3.2-1B-Instruct-q4f16_1-MLC";
-const CLIENT_AI_MODULE_URL = "https://esm.run/@mlc-ai/web-llm";
-const localAI = {
-  engine: null,
+const DEFAULT_LLM_ENDPOINT = "https://api.openai.com/v1/chat/completions";
+const DEFAULT_LLM_MODEL = "gpt-4o-mini";
+const llmAPI = {
+  apiKey: "",
+  endpoint: DEFAULT_LLM_ENDPOINT,
+  model: DEFAULT_LLM_MODEL,
   ready: false,
-  loading: false,
   skipped: false,
   lastError: "",
 };
@@ -104,18 +105,13 @@ function avatarFor(group) {
   return game?.avatars?.[group] || fallback[group] || fallback.player;
 }
 
-function setLocalAIStatus(text, progress = null) {
+function setLLMStatus(text) {
   const status = $("localAiStatus");
   const detail = $("aiLoadingDetail");
-  const bar = $("aiProgressBar");
   const label = $("aiProgressLabel");
-  if (status) status.textContent = `本地AI狀態：${text}`;
+  if (status) status.textContent = `LLM狀態：${text}`;
   if (detail) detail.textContent = text;
-  if (typeof progress === "number") {
-    const pct = Math.max(0, Math.min(100, Math.round(progress)));
-    if (bar) bar.style.width = `${pct}%`;
-    if (label) label.textContent = `${pct}%`;
-  }
+  if (label) label.textContent = text;
 }
 
 function startGameAfterAILoad() {
@@ -127,41 +123,21 @@ function startGameAfterAILoad() {
   renderOpening();
 }
 
-function supportsClientAI() {
-  return Boolean(window.isSecureContext && navigator.gpu);
-}
-
-async function loadLocalAI() {
-  if (localAI.ready) {
-    setLocalAIStatus("本地AI已載入，準備進入遊戲。", 100);
-    return;
+function configureLLMFromForm() {
+  const apiKey = $("llmApiKey").value.trim();
+  const endpoint = $("llmEndpoint").value.trim() || DEFAULT_LLM_ENDPOINT;
+  const model = $("llmModel").value.trim() || DEFAULT_LLM_MODEL;
+  if (!apiKey) {
+    setLLMStatus("請先輸入 API Key，或選擇陽春版。");
+    return false;
   }
-  if (localAI.loading || localAI.skipped) return;
-  if (!supportsClientAI()) {
-    setLocalAIStatus("此瀏覽器或目前網址不支援 WebGPU，將進入陽春版。", 100);
-    return;
-  }
-
-  localAI.loading = true;
-  setLocalAIStatus("準備下載本地模型。首次載入會比較久，模型會由瀏覽器快取。", 5);
-
-  try {
-    const webllm = await import(CLIENT_AI_MODULE_URL);
-    localAI.engine = await webllm.CreateMLCEngine(CLIENT_AI_MODEL, {
-      initProgressCallback: (progress) => {
-        const pct = typeof progress.progress === "number" ? progress.progress * 100 : null;
-        setLocalAIStatus(progress.text || "下載並初始化模型中", pct);
-      },
-    });
-    localAI.ready = true;
-    setLocalAIStatus("本地AI已啟用，進入遊戲。", 100);
-  } catch (error) {
-    localAI.lastError = error?.message || String(error);
-    console.error("Client-side AI failed to load", error);
-    setLocalAIStatus("本地AI載入失敗，將進入陽春版。", 100);
-  } finally {
-    localAI.loading = false;
-  }
+  llmAPI.apiKey = apiKey;
+  llmAPI.endpoint = endpoint;
+  llmAPI.model = model;
+  llmAPI.ready = true;
+  llmAPI.skipped = false;
+  setLLMStatus("LLM API 已設定，準備進入遊戲。");
+  return true;
 }
 
 function sceneGenerationPrompt(choice, scene) {
@@ -191,33 +167,43 @@ function parseAIParagraphs(text) {
 }
 
 async function generateClientAIScene(choice, scene) {
-  if (!localAI.ready || !localAI.engine) return scene;
-  setLocalAIStatus("本地AI生成場景中");
+  if (!llmAPI.ready || !llmAPI.apiKey || llmAPI.skipped) return scene;
+  setLLMStatus("LLM API 生成場景中");
 
   try {
-    const reply = await localAI.engine.chat.completions.create({
-      messages: [
-        {
-          role: "system",
-          content: "你是戀愛模擬遊戲的本地劇情生成器。你必須遵守安全邊界，只生成繁體中文、非露骨、成年人角色的危險曖昧劇情。",
-        },
-        { role: "user", content: sceneGenerationPrompt(choice, scene) },
-      ],
-      temperature: 0.85,
-      top_p: 0.9,
-      max_tokens: 420,
+    const response = await fetch(llmAPI.endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${llmAPI.apiKey}`,
+      },
+      body: JSON.stringify({
+        model: llmAPI.model,
+        messages: [
+          {
+            role: "system",
+            content: "你是戀愛模擬遊戲的劇情生成器。你必須遵守安全邊界，只生成繁體中文、非露骨、成年人角色的危險曖昧劇情。",
+          },
+          { role: "user", content: sceneGenerationPrompt(choice, scene) },
+        ],
+        temperature: 0.85,
+        top_p: 0.9,
+        max_tokens: 420,
+      }),
     });
+    if (!response.ok) throw new Error(`LLM API HTTP ${response.status}`);
+    const reply = await response.json();
     const content = reply?.choices?.[0]?.message?.content || "";
     const paragraphs = parseAIParagraphs(content);
     if (paragraphs.length >= 2) {
-      setLocalAIStatus("本地AI已啟用：場景由本機生成");
+      setLLMStatus("LLM API 已啟用：場景由 API 生成");
       return { ...scene, paragraphs };
     }
-    throw new Error("本地模型回覆格式不足");
+    throw new Error("LLM API 回覆格式不足");
   } catch (error) {
-    localAI.lastError = error?.message || String(error);
-    console.error("Client-side AI scene generation failed", error);
-    setLocalAIStatus("本地AI本次生成失敗，本段已使用陽春版劇情");
+    llmAPI.lastError = error?.message || String(error);
+    console.error("LLM API scene generation failed", error);
+    setLLMStatus("LLM API 本次生成失敗，本段已使用陽春版劇情");
     return scene;
   }
 }
@@ -301,13 +287,16 @@ function finishSetup() {
     lastTitle: "雨還沒落下來",
   };
 
-  localAI.skipped = false;
+  llmAPI.ready = false;
+  llmAPI.skipped = false;
+  llmAPI.apiKey = "";
+  llmAPI.lastError = "";
   $("setup").classList.add("hidden");
   $("aiLoading").classList.remove("hidden");
-  setLocalAIStatus("準備載入本地劇情模型。", 0);
-  void loadLocalAI().finally(() => {
-    setTimeout(startGameAfterAILoad, localAI.ready ? 450 : 900);
-  });
+  $("llmApiKey").value = "";
+  $("llmEndpoint").value = DEFAULT_LLM_ENDPOINT;
+  $("llmModel").value = DEFAULT_LLM_MODEL;
+  setLLMStatus("請輸入 API Key 以啟用 LLM，或選擇陽春版。");
 }
 
 function renderOpening() {
@@ -952,9 +941,15 @@ function restartGame() {
   renderSetup();
 }
 
+$("startApiBtn").addEventListener("click", () => {
+  if (configureLLMFromForm()) startGameAfterAILoad();
+});
+
 $("skipAiBtn").addEventListener("click", () => {
-  localAI.skipped = true;
-  setLocalAIStatus("已選擇陽春版，不載入 WebLLM。", 100);
+  llmAPI.skipped = true;
+  llmAPI.ready = false;
+  llmAPI.apiKey = "";
+  setLLMStatus("已選擇陽春版，不使用 LLM API。");
   startGameAfterAILoad();
 });
 $("restartBtn").addEventListener("click", restartGame);
