@@ -5,9 +5,19 @@ const setupSteps = [
     options: ["普通上班族", "設計師", "律師", "醫生", "攝影師", "咖啡店老闆", "自由職業", "玩家自訂", "AI 隨機生成"],
   },
   {
+    key: "playerGender",
+    title: "選擇自己的性別",
+    options: ["女性", "男性", "非二元", "不透露", "玩家自訂", "AI 隨機生成"],
+  },
+  {
     key: "relationship",
     title: "選擇目前關係",
     options: ["單身", "剛認識", "互有好感", "曖昧中", "第一次約會後", "穩定交往前", "玩家自訂", "AI 隨機生成"],
+  },
+  {
+    key: "targetGender",
+    title: "選擇攻略對象性別",
+    options: ["男性", "女性", "男女皆有", "不限制", "玩家自訂", "AI 隨機生成"],
   },
   {
     key: "dangerType",
@@ -27,7 +37,13 @@ const setupSteps = [
 ];
 
 const pools = {
-  names: ["沈予安", "周靜禾", "許知遠", "陳沐晴", "梁以辰", "林晏", "唐若白", "喬念"],
+  names: {
+    male: ["沈予安", "許知遠", "梁以辰", "林晏", "唐若白", "陸景澄", "賀南川", "顧承安"],
+    female: ["周靜禾", "陳沐晴", "喬念", "夏知微", "宋以棠", "白若寧", "葉清梨", "程晚星"],
+    neutral: ["季安", "凌澈", "南星", "青禾", "言川", "初白"],
+  },
+  playerGenders: ["女性", "男性", "非二元", "不透露"],
+  targetGenders: ["男性", "女性", "男女皆有", "不限制"],
   partnerTraits: ["溫柔體貼型", "敏感多疑型", "強勢獨立型", "感情遲鈍型", "細心觀察型"],
   dangerTraits: ["溫柔攻勢型", "進攻直球型", "糾纏舊識型", "報復誘惑型", "陽光曖昧型"],
   jobs: ["出版社編輯", "展覽策展人", "品牌企劃", "急診護理師", "獨立攝影師", "資料分析師"],
@@ -51,6 +67,29 @@ const $ = (id) => document.getElementById(id);
 const clamp = (n) => Math.max(0, Math.min(100, Math.round(n)));
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+function allTargetNames() {
+  return [...pools.names.male, ...pools.names.female, ...pools.names.neutral];
+}
+
+function namesForTargetGender(targetGender) {
+  if (targetGender.includes("男") && !targetGender.includes("女")) {
+    return { partner: pools.names.male, danger: pools.names.male };
+  }
+  if (targetGender.includes("女") && !targetGender.includes("男")) {
+    return { partner: pools.names.female, danger: pools.names.female };
+  }
+  if (targetGender.includes("男女")) {
+    return Math.random() < 0.5
+      ? { partner: pools.names.male, danger: pools.names.female }
+      : { partner: pools.names.female, danger: pools.names.male };
+  }
+  return { partner: allTargetNames(), danger: allTargetNames() };
+}
+
+function playerProfileLabel() {
+  return `${game.setup.identity}｜${game.setup.playerGender || "未設定"}`;
+}
 
 function renderSetup() {
   const step = setupSteps[setupIndex];
@@ -76,10 +115,14 @@ function renderSetup() {
 function finishSetup() {
   const randomIdentity = pick(pools.jobs);
   const identity = setupData.identity.includes("隨機") ? randomIdentity : setupData.identity;
+  const playerGender = setupData.playerGender.includes("隨機") ? pick(pools.playerGenders) : setupData.playerGender;
   const relation = setupData.relationship.includes("隨機") ? pick(["單身", "剛認識", "互有好感", "曖昧中"]) : setupData.relationship;
+  const targetGender = setupData.targetGender.includes("隨機") ? pick(pools.targetGenders) : setupData.targetGender;
   const dangerType = setupData.dangerType.includes("隨機") ? pick(["新同事", "咖啡店常客", "朋友介紹", "旅行認識的人"]) : setupData.dangerType;
-  const partnerName = pick(pools.names);
-  let dangerName = pick(pools.names.filter((name) => name !== partnerName));
+  const targetNames = namesForTargetGender(targetGender);
+  const partnerName = pick(targetNames.partner);
+  let dangerName = pick(targetNames.danger.filter((name) => name !== partnerName));
+  if (!dangerName) dangerName = pick(allTargetNames().filter((name) => name !== partnerName));
 
   game = {
     week: 1,
@@ -89,7 +132,7 @@ function finishSetup() {
     choicesMade: [],
     usedEvents: [],
     ended: false,
-    setup: { ...setupData, identity, relation, dangerType },
+    setup: { ...setupData, identity, playerGender, relation, targetGender, dangerType },
     names: { partner: partnerName, danger: dangerName },
     traits: { partner: pick(pools.partnerTraits), danger: pick(pools.dangerTraits) },
     stats: {
@@ -110,8 +153,8 @@ function renderOpening() {
   const s = game.setup;
   const title = "開場：雨還沒落下來";
   const paragraphs = [
-    `你是${s.identity}。在這座通勤時間總是被雨水拖長的城市裡，你目前處在「${s.relation}」的狀態：沒有婚姻，沒有現任，也沒有任何既定伴侶。這不是背叛某個人，而是你還沒學會如何處理同時靠近你的心動。`,
-    `${game.names.partner}是${game.traits.partner}，像一個能讓生活變穩的人；${game.names.danger}則以「${s.dangerType}」的身份闖進你的日常，帶著更直接、更危險的吸引。兩個人都可以被攻略，但你對任何一方的含糊，都可能變成另一方眼裡的欺瞞。`,
+    `你是${s.identity}，性別設定為「${s.playerGender}」。在這座通勤時間總是被雨水拖長的城市裡，你目前處在「${s.relation}」的狀態：沒有婚姻，沒有現任，也沒有任何既定伴侶。這不是背叛某個人，而是你還沒學會如何處理同時靠近你的心動。`,
+    `你選擇的攻略對象性別是「${s.targetGender}」。${game.names.partner}是${game.traits.partner}，像一個能讓生活變穩的人；${game.names.danger}則以「${s.dangerType}」的身份闖進你的日常，帶著更直接、更危險的吸引。兩個人都可以被攻略，但你對任何一方的含糊，都可能變成另一方眼裡的欺瞞。`,
     `你選擇的是「${s.style}」風格，情感濃度為「${s.heat}」。本版本保留欺瞞、秘密、試探、報復與關係失控；攻略過程可以有肢體接觸甚至過夜，但不使用已婚、現任或既定伴侶設定。第 1 週開始，你有 5 個行動點。每次選擇都會留下痕跡。`,
   ];
   showScene(title, paragraphs, openingChoices());
@@ -169,7 +212,7 @@ function deltaAvatar(group) {
 function deltaDisplayName(group) {
   if (group === "partner") return `主要攻略角色｜${game.names.partner}`;
   if (group === "danger") return `危險對象｜${game.names.danger}`;
-  return `你｜${game.setup.identity}`;
+  return `你｜${playerProfileLabel()}`;
 }
 
 function deltaPopupHtml(delta) {
@@ -616,7 +659,7 @@ function endingAvatar(focus) {
 function endingFocusLabel(focus) {
   if (focus === "partner") return `你選擇面對：${game.names.partner}`;
   if (focus === "danger") return `結局核心人物：${game.names.danger}`;
-  return `沒有選擇任何人：${game.setup.identity}`;
+  return `沒有選擇任何人：${playerProfileLabel()}`;
 }
 
 function renderEndingPage(ending = game.ending) {
@@ -638,7 +681,7 @@ function showScene(title, paragraphs, choices, delta = null) {
   $("weekNo").textContent = game.week;
   $("phaseLabel").textContent = stages[game.stage];
   $("sceneTitle").textContent = title;
-  $("playerRole").textContent = game.setup.identity;
+  $("playerRole").textContent = playerProfileLabel();
   $("partnerName").textContent = game.names.partner;
   $("dangerName").textContent = game.names.danger;
   const apLine = `<p class="message">目前行動點：${game.ap} / 5。關係階段：${stages[game.stage]}。距離大結局最多還有 ${Math.max(0, 12 - game.week)} 週。</p>`;
