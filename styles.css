@@ -316,6 +316,34 @@ input {
   gap: 8px;
 }
 
+.ai-panel {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfaf6;
+}
+
+.ai-panel button {
+  min-height: 38px;
+  border-radius: 8px;
+  background: var(--teal);
+  color: #fff;
+  font-weight: 800;
+}
+
+.ai-panel button:disabled {
+  opacity: 0.68;
+  cursor: wait;
+}
+
+.ai-panel span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
 .save-row button,
 .choices button,
 .free-form button {

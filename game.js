@@ -75,6 +75,15 @@ const avatarPool = [
   "assets/walk-cutout.png",
 ];
 
+const CLIENT_AI_MODEL = "Llama-3.2-1B-Instruct-q4f16_1-MLC";
+const CLIENT_AI_MODULE_URL = "https://esm.run/@mlc-ai/web-llm";
+const localAI = {
+  engine: null,
+  ready: false,
+  loading: false,
+  lastError: "",
+};
+
 function randomAvatars() {
   const shuffled = [...avatarPool].sort(() => Math.random() - 0.5);
   return {
@@ -91,6 +100,108 @@ function avatarFor(group) {
     danger: "assets/danger-cutout.png",
   };
   return game?.avatars?.[group] || fallback[group] || fallback.player;
+}
+
+function setLocalAIStatus(text, disabled = false) {
+  const status = $("localAiStatus");
+  const button = $("localAiBtn");
+  if (status) status.textContent = text;
+  if (button) button.disabled = disabled;
+}
+
+function supportsClientAI() {
+  return Boolean(window.isSecureContext && navigator.gpu);
+}
+
+async function loadLocalAI() {
+  if (localAI.ready || localAI.loading) return;
+  if (!supportsClientAI()) {
+    setLocalAIStatus("本地AI需要支援 WebGPU 的安全環境，已保留規則劇情");
+    return;
+  }
+
+  localAI.loading = true;
+  setLocalAIStatus("本地AI載入中：準備下載模型", true);
+
+  try {
+    const webllm = await import(CLIENT_AI_MODULE_URL);
+    localAI.engine = await webllm.CreateMLCEngine(CLIENT_AI_MODEL, {
+      initProgressCallback: (progress) => {
+        const percent = typeof progress.progress === "number" ? ` ${Math.round(progress.progress * 100)}%` : "";
+        setLocalAIStatus(`本地AI載入中：${progress.text || "下載模型"}${percent}`, true);
+      },
+    });
+    localAI.ready = true;
+    setLocalAIStatus("本地AI已啟用：場景將由本機模型生成", true);
+  } catch (error) {
+    localAI.lastError = error?.message || String(error);
+    console.error("Client-side AI failed to load", error);
+    setLocalAIStatus("本地AI載入失敗，已回到規則劇情");
+  } finally {
+    localAI.loading = false;
+    if (!localAI.ready) {
+      const button = $("localAiBtn");
+      if (button) button.disabled = false;
+    }
+  }
+}
+
+function sceneGenerationPrompt(choice, scene) {
+  const snapshot = {
+    week: game.week,
+    stage: stages[game.stage],
+    action: choice.label,
+    actionType: choice.type,
+    setup: game.setup,
+    names: game.names,
+    traits: game.traits,
+    stats: game.stats,
+    title: scene.title,
+    sourceParagraphs: scene.paragraphs,
+    lastChoices: game.choicesMade.slice(-5),
+  };
+
+  return `請根據以下 JSON 生成繁體中文互動戀愛遊戲場景。只輸出 2 到 4 段劇情，每段一行，不要輸出標題、選項、數值、JSON 或解釋。風格：危險曖昧、欺瞞拉扯、非露骨成人角色戀愛；禁止已婚、現任伴侶、未成年人性化與露骨色情。保留角色名稱與行動後果。\n\n${JSON.stringify(snapshot)}`;
+}
+
+function parseAIParagraphs(text) {
+  return text
+    .split(/\n+/)
+    .map((line) => line.replace(/^[-*\d.、\s]+/, "").trim())
+    .filter(Boolean)
+    .slice(0, 4);
+}
+
+async function generateClientAIScene(choice, scene) {
+  if (!localAI.ready || !localAI.engine) return scene;
+  setLocalAIStatus("本地AI生成場景中", true);
+
+  try {
+    const reply = await localAI.engine.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content: "你是戀愛模擬遊戲的本地劇情生成器。你必須遵守安全邊界，只生成繁體中文、非露骨、成年人角色的危險曖昧劇情。",
+        },
+        { role: "user", content: sceneGenerationPrompt(choice, scene) },
+      ],
+      temperature: 0.85,
+      top_p: 0.9,
+      max_tokens: 420,
+    });
+    const content = reply?.choices?.[0]?.message?.content || "";
+    const paragraphs = parseAIParagraphs(content);
+    if (paragraphs.length >= 2) {
+      setLocalAIStatus("本地AI已啟用：場景由本機生成", true);
+      return { ...scene, paragraphs };
+    }
+    throw new Error("本地模型回覆格式不足");
+  } catch (error) {
+    localAI.lastError = error?.message || String(error);
+    console.error("Client-side AI scene generation failed", error);
+    setLocalAIStatus("本地AI本次生成失敗，已使用規則劇情", true);
+    return scene;
+  }
 }
 
 function allTargetNames() {
@@ -291,14 +402,15 @@ function advanceStage() {
   game.stage = Math.max(game.stage, next);
 }
 
-function choose(choice) {
+async function choose(choice) {
   if (game.ended) return;
   if (game.ap <= 0) return nextWeek();
   game.ap -= 1;
   game.sceneCount += 1;
   game.choicesMade.push(choice.label);
 
-  const scene = buildScene(choice);
+  const baseScene = buildScene(choice);
+  const scene = await generateClientAIScene(choice, baseScene);
   applyDelta(scene.delta);
   riskPulse(choice.type);
   advanceStage();
@@ -523,12 +635,13 @@ function nextChoices(previousType) {
   return base;
 }
 
-function nextWeek() {
+async function nextWeek() {
   if (game.ended) return;
   if (game.week >= 12) return showEnding("deadline");
   game.week += 1;
   game.ap = 5;
-  const weekly = weeklyEvent();
+  const baseWeekly = weeklyEvent();
+  const weekly = await generateClientAIScene(makeChoice("進入下一週", "week"), baseWeekly);
   applyDelta(weekly.delta);
   advanceStage();
   if (game.stage >= 5) return showEnding("truth");
@@ -722,8 +835,8 @@ function showScene(title, paragraphs, choices, delta = null) {
     btn.addEventListener("click", () => {
       if (btn.dataset.type === "restartGame") restartGame();
       if (btn.dataset.type === "openEndingPage") renderEndingPage();
-      if (btn.dataset.type === "nextWeek") nextWeek();
-      else if (btn.dataset.type !== "restartGame" && btn.dataset.type !== "openEndingPage") choose({ label: btn.dataset.label, type: btn.dataset.type });
+      if (btn.dataset.type === "nextWeek") void nextWeek();
+      else if (btn.dataset.type !== "restartGame" && btn.dataset.type !== "openEndingPage") void choose({ label: btn.dataset.label, type: btn.dataset.type });
     });
   });
   $("freeForm").classList.toggle("hidden", Boolean(game.ended));
@@ -777,7 +890,7 @@ $("freeForm").addEventListener("submit", (event) => {
   if (value.includes("危險") || value.includes("訊息") || value.includes("見面") || value.includes("咖啡")) type = "danger";
   if (value.includes("騙") || value.includes("加班") || value.includes("刪") || value.includes("報復") || lowered.includes("lie")) type = "lie";
   $("freeInput").value = "";
-  choose({ label: `自訂行動：${value}`, type });
+  void choose({ label: `自訂行動：${value}`, type });
 });
 
 $("saveBtn").addEventListener("click", () => {
@@ -813,6 +926,7 @@ function restartGame() {
   renderSetup();
 }
 
+$("localAiBtn").addEventListener("click", () => void loadLocalAI());
 $("restartBtn").addEventListener("click", restartGame);
 $("endingRestart").addEventListener("click", restartGame);
 $("endingBack").addEventListener("click", () => {
