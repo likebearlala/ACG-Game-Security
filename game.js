@@ -143,6 +143,8 @@ function configureLLMFromForm() {
 function llmScenePrompt(choice, scene) {
   const snapshot = {
     week: game.week,
+    ap: game.ap,
+    stageIndex: game.stage,
     stage: stages[game.stage],
     action: choice.label,
     actionType: choice.type,
@@ -152,23 +154,127 @@ function llmScenePrompt(choice, scene) {
     stats: game.stats,
     title: scene.title,
     sourceParagraphs: scene.paragraphs,
-    lastChoices: game.choicesMade.slice(-5),
+    recentChoices: game.choicesMade.slice(-8),
+    existingDeltaShape: scene.delta,
+    validChoiceTypes: ["stable", "danger", "lie", "self", "social", "nextWeek", "ending"],
   };
 
-  return `請根據以下 JSON 生成繁體中文互動戀愛遊戲場景。只輸出 2 到 4 段劇情，每段一行，不要輸出標題、選項、數值、JSON 或解釋。風格：危險曖昧、欺瞞拉扯、非露骨成人角色戀愛；禁止已婚、現任伴侶、未成年人性化與露骨色情。保留角色名稱與行動後果。\n\n${JSON.stringify(snapshot)}`;
+  return `你是繁體中文視覺小說戀愛遊戲的劇情導演，不是單純潤稿器。
+請根據玩家開局設定、目前數值、最近選擇、角色姓名與性別，生成下一個完整可互動劇情節點。
+
+安全邊界：
+- 角色都必須是成年人。
+- 不要加入已婚、已有現任伴侶、未成年、露骨性描寫。
+- 可以保留欺瞞、報復、曖昧拉扯、肢體接觸、親吻、過夜、關係失控與後果。
+- 玩家關係起點是單身、剛認識、曖昧或正常戀愛推進。
+
+輸出必須是純 JSON，不能有 markdown，格式如下：
+{
+  "title": "本段標題",
+  "paragraphs": ["3 到 5 段小說式劇情，每段 40 到 90 字"],
+  "delta": {
+    "partner": { "必須沿用 existingDeltaShape.partner 的所有 key": 0 },
+    "danger": { "必須沿用 existingDeltaShape.danger 的所有 key": 0 },
+    "player": { "必須沿用 existingDeltaShape.player 的所有 key": 0 }
+  },
+  "choices": [
+    { "label": "下一個具體行動，必須和本段劇情直接相關", "type": "stable|danger|lie|self|social|nextWeek|ending" }
+  ],
+  "ending": null
 }
 
-function parseAIParagraphs(text) {
-  return text
-    .split(/\n+/)
-    .map((line) => line.replace(/^[-*\d.、\s]+/, "").trim())
-    .filter(Boolean)
-    .slice(0, 4);
+規則：
+- choices 必須有 3 到 5 個，不能每次都一樣。
+- 每個 choice 要導向不同的情緒與風險：坦白、靠近、欺瞞、報復、抽身、推進關係等。
+- choices.label 要像玩家真正在對 LLM 下指令，不要寫成泛用選單。
+- 如果目前選擇或數值已經足以收束，ending 可改成：
+  { "title": "結局名", "focus": "self|partner|danger", "paragraphs": ["3 到 5 段結局小說"] }
+- 不要讓 AI 直接改遊戲規則；delta 只做小到中等幅度變動，數字介於 -18 到 18。
+- 回覆內容要明顯呼應本次 action 與 setup，讓不同設定與選項產生不同小說內容、選項與可能結局。
+
+目前遊戲狀態：
+${JSON.stringify(snapshot)}`;
 }
 
-async function generateLLMScene(choice, scene) {
-  if (!llmAPI.ready || !llmAPI.apiKey || llmAPI.skipped) return scene;
-  setLLMStatus("LLM API 生成場景中");
+function extractJSON(text) {
+  const trimmed = String(text || "").trim();
+  if (!trimmed) throw new Error("LLM returned empty content");
+  try {
+    return JSON.parse(trimmed);
+  } catch (_) {
+    const start = trimmed.indexOf("{");
+    const end = trimmed.lastIndexOf("}");
+    if (start === -1 || end === -1 || end <= start) throw new Error("LLM did not return JSON");
+    return JSON.parse(trimmed.slice(start, end + 1));
+  }
+}
+
+function cleanTextArray(value, fallback) {
+  const items = Array.isArray(value) ? value : [];
+  const cleaned = items.map((item) => String(item || "").trim()).filter(Boolean).slice(0, 5);
+  return cleaned.length >= 2 ? cleaned : fallback;
+}
+
+function normalizeChoiceType(type) {
+  const allowed = new Set(["stable", "danger", "lie", "self", "social", "nextWeek", "ending"]);
+  return allowed.has(type) ? type : "self";
+}
+
+function normalizeLLMChoices(value, fallback) {
+  const items = Array.isArray(value) ? value : [];
+  const choices = items
+    .map((item) => {
+      if (typeof item === "string") return makeChoice(item.trim(), "self");
+      return makeChoice(String(item?.label || "").trim(), normalizeChoiceType(item?.type));
+    })
+    .filter((choice) => choice.label)
+    .slice(0, 5);
+  return choices.length >= 2 ? choices : fallback;
+}
+
+function cloneDelta(delta) {
+  return JSON.parse(JSON.stringify(delta || {}));
+}
+
+function normalizeLLMDelta(value, fallback) {
+  const normalized = cloneDelta(fallback);
+  Object.keys(normalized).forEach((group) => {
+    Object.keys(normalized[group]).forEach((key) => {
+      const raw = Number(value?.[group]?.[key]);
+      normalized[group][key] = Number.isFinite(raw) ? Math.max(-18, Math.min(18, Math.round(raw))) : normalized[group][key];
+    });
+  });
+  return normalized;
+}
+
+function normalizeLLMEnding(value) {
+  if (!value || typeof value !== "object") return null;
+  const paragraphs = cleanTextArray(value.paragraphs, []);
+  if (paragraphs.length < 2) return null;
+  const focus = ["self", "partner", "danger"].includes(value.focus) ? value.focus : "self";
+  return {
+    title: String(value.title || "生成結局").trim() || "生成結局",
+    focus,
+    paragraphs,
+  };
+}
+
+function normalizeLLMNode(payload, scene, fallbackChoices) {
+  return {
+    ...scene,
+    title: String(payload.title || scene.title).trim() || scene.title,
+    paragraphs: cleanTextArray(payload.paragraphs, scene.paragraphs),
+    delta: normalizeLLMDelta(payload.delta, scene.delta),
+    choices: normalizeLLMChoices(payload.choices, fallbackChoices),
+    ending: normalizeLLMEnding(payload.ending),
+  };
+}
+
+async function generateLLMScene(choice, scene, fallbackChoices) {
+  if (!llmAPI.ready || !llmAPI.apiKey || llmAPI.skipped) {
+    return { ...scene, choices: fallbackChoices };
+  }
+  setLLMStatus("LLM API 正在生成劇情與選項");
 
   try {
     const response = await fetch(llmAPI.endpoint, {
@@ -182,31 +288,30 @@ async function generateLLMScene(choice, scene) {
         messages: [
           {
             role: "system",
-            content: "你是戀愛模擬遊戲的劇情生成器。你必須遵守安全邊界，只生成繁體中文、非露骨、成年人角色的危險曖昧劇情。",
+            content: "你是繁體中文視覺小說遊戲引擎。你只輸出可解析 JSON，並根據玩家選項生成劇情、下一步選項、數值變動與可能結局。",
           },
           { role: "user", content: llmScenePrompt(choice, scene) },
         ],
-        temperature: 0.85,
-        top_p: 0.9,
-        max_tokens: 420,
+        temperature: 0.95,
+        top_p: 0.92,
+        max_tokens: 1400,
       }),
     });
     if (!response.ok) throw new Error(`LLM API HTTP ${response.status}`);
     const reply = await response.json();
     const content = reply?.choices?.[0]?.message?.content || "";
-    const paragraphs = parseAIParagraphs(content);
-    if (paragraphs.length >= 2) {
-      setLLMStatus("LLM API 已啟用：場景由 API 生成");
-      return { ...scene, paragraphs };
-    }
-    throw new Error("LLM API 回覆格式不足");
+    const payload = extractJSON(content);
+    const node = normalizeLLMNode(payload, scene, fallbackChoices);
+    setLLMStatus("LLM API 已生成本段劇情與選項");
+    return node;
   } catch (error) {
     llmAPI.lastError = error?.message || String(error);
     console.error("LLM API scene generation failed", error);
-    setLLMStatus("LLM API 本次生成失敗，本段已使用陽春版劇情");
-    return scene;
+    setLLMStatus("LLM API 本次生成失敗，本段已使用陽春版規則");
+    return { ...scene, choices: fallbackChoices };
   }
 }
+
 
 function allTargetNames() {
   return [...pools.names.male, ...pools.names.female, ...pools.names.neutral];
@@ -423,13 +528,15 @@ async function choose(choice) {
   game.choicesMade.push(choice.label);
 
   const baseScene = buildScene(choice);
-  const scene = await generateLLMScene(choice, baseScene);
+  const fallbackChoices = game.ap <= 0 ? [makeChoice("進入下一週", "nextWeek")] : nextChoices(choice.type);
+  const scene = await generateLLMScene(choice, baseScene, fallbackChoices);
   applyDelta(scene.delta);
   riskPulse(choice.type);
   advanceStage();
-  if (game.stage >= 5) return showEnding("truth");
-  if (game.ap <= 0) scene.paragraphs.push(`夜深之後，這一週的行動點歸零。城市安靜下來，卻不是每個人都睡得著。`);
-  showScene(scene.title, scene.paragraphs, game.ap <= 0 ? [makeChoice("進入下一週", "nextWeek")] : nextChoices(choice.type), scene.delta);
+  if (scene.ending) return showGeneratedEnding(scene.ending, scene.delta);
+  if (choice.type === "ending" || game.stage >= 5) return showEnding("truth");
+  if (game.ap <= 0) scene.paragraphs.push("這一週的行動點已用完，接下來的選擇會把你推進下一週。");
+  showScene(scene.title, scene.paragraphs, game.ap <= 0 ? [makeChoice("進入下一週", "nextWeek")] : scene.choices, scene.delta);
 }
 
 function riskPulse(type) {
@@ -653,12 +760,15 @@ async function nextWeek() {
   if (game.week >= 12) return showEnding("deadline");
   game.week += 1;
   game.ap = 5;
+  const weekChoice = makeChoice("進入下一週", "week");
+  game.choicesMade.push(weekChoice.label);
   const baseWeekly = weeklyEvent();
-  const weekly = await generateLLMScene(makeChoice("進入下一週", "week"), baseWeekly);
+  const weekly = await generateLLMScene(weekChoice, baseWeekly, nextChoices("week"));
   applyDelta(weekly.delta);
   advanceStage();
+  if (weekly.ending) return showGeneratedEnding(weekly.ending, weekly.delta);
   if (game.stage >= 5) return showEnding("truth");
-  showScene(weekly.title, weekly.paragraphs, nextChoices("week"), weekly.delta);
+  showScene(weekly.title, weekly.paragraphs, weekly.choices, weekly.delta);
 }
 
 function weeklyEvent() {
@@ -721,6 +831,15 @@ function showEnding(reason) {
   game.ending = ending;
   showScene(ending.title, ending.paragraphs, [makeChoice("查看大結局圖", "openEndingPage"), makeChoice("重新開始新周目", "restartGame")], ending.delta);
   renderEndingPage(ending);
+}
+
+function showGeneratedEnding(ending, delta = null) {
+  game.ended = true;
+  game.stage = 5;
+  game.ap = 0;
+  game.ending = { ...ending, delta: delta || resolveEnding("truth").delta };
+  showScene(game.ending.title, game.ending.paragraphs, [makeChoice("查看結局詳情", "openEndingPage"), makeChoice("重新開始", "restartGame")], game.ending.delta);
+  renderEndingPage(game.ending);
 }
 
 function resolveEnding(reason) {
