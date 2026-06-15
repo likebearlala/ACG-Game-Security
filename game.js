@@ -120,7 +120,7 @@ function startGameAfterLLMGate() {
   $("llmGate").classList.add("hidden");
   $("setup").classList.add("hidden");
   $("game").classList.remove("hidden");
-  renderOpening();
+  void renderOpening();
 }
 
 function configureLLMFromForm() {
@@ -267,6 +267,7 @@ function normalizeLLMNode(payload, scene, fallbackChoices) {
     delta: normalizeLLMDelta(payload.delta, scene.delta),
     choices: normalizeLLMChoices(payload.choices, fallbackChoices),
     ending: normalizeLLMEnding(payload.ending),
+    generatedByLLM: true,
   };
 }
 
@@ -307,8 +308,16 @@ async function generateLLMScene(choice, scene, fallbackChoices) {
   } catch (error) {
     llmAPI.lastError = error?.message || String(error);
     console.error("LLM API scene generation failed", error);
-    setLLMStatus("LLM API 本次生成失敗，本段已使用陽春版規則");
-    return { ...scene, choices: fallbackChoices };
+    setLLMStatus(`LLM API 失敗：${llmAPI.lastError}`);
+    return {
+      ...scene,
+      paragraphs: [
+        ...scene.paragraphs,
+        `LLM API 呼叫失敗，目前使用陽春版規則。錯誤：${llmAPI.lastError}。請確認 API Key、Endpoint、Model，或該供應商是否允許瀏覽器 CORS 呼叫。`,
+      ],
+      choices: fallbackChoices,
+      generatedByLLM: false,
+    };
   }
 }
 
@@ -404,15 +413,17 @@ function finishSetup() {
   setLLMStatus("請輸入 API Key 以啟用 LLM，或選擇陽春版。");
 }
 
-function renderOpening() {
+async function renderOpening() {
   const s = game.setup;
   const title = "開場：雨還沒落下來";
   const paragraphs = [
-    `你是${s.identity}，性別設定為「${s.playerGender}」。在這座通勤時間總是被雨水拖長的城市裡，你目前處在「${s.relation}」的狀態：沒有婚姻，沒有現任，也沒有任何既定伴侶。這不是背叛某個人，而是你還沒學會如何處理同時靠近你的心動。`,
-    `你選擇的攻略對象性別是「${s.targetGender}」。${game.names.partner}是${game.traits.partner}，像一個能讓生活變穩的人；${game.names.danger}則以「${s.dangerType}」的身份闖進你的日常，帶著更直接、更危險的吸引。兩個人都可以被攻略，但你對任何一方的含糊，都可能變成另一方眼裡的欺瞞。`,
-    `你選擇的是「${s.style}」風格，情感濃度為「${s.heat}」。本版本保留欺瞞、秘密、試探、報復與關係失控；攻略過程可以有肢體接觸甚至過夜，但不使用已婚、現任或既定伴侶設定。第 1 週開始，你有 5 個行動點。每次選擇都會留下痕跡。`,
+    `你是${s.identity}，性別設定是「${s.playerGender}」。今晚你把自己推進一段新的關係裡：${s.relation}。這不是已婚或現任伴侶的背叛，而是單身之後，從試探、曖昧到可能認真戀愛的危險靠近。`,
+    `你想攻略的對象性別設定是「${s.targetGender}」。${game.names.partner}帶著${game.traits.partner}的氣質靠近你，而${game.names.danger}則以「${s.dangerType}」的方式留下另一條看似更刺激的路。`,
+    `這局風格是「${s.style}」，親密尺度是「${s.heat}」。你可以選擇坦白靠近，也可以選擇欺瞞、報復或曖昧拉扯；每一次選擇都會改變接下來的小說內容、選項與可能結局。`,
   ];
-  showScene(title, paragraphs, openingChoices());
+  const baseScene = { title, paragraphs, delta: emptyDelta() };
+  const opening = await generateLLMScene(makeChoice("根據開局設定生成第一幕", "self"), baseScene, openingChoices());
+  showScene(opening.title, opening.paragraphs, opening.choices, null);
 }
 
 function openingChoices() {
@@ -426,6 +437,15 @@ function openingChoices() {
 
 function makeChoice(label, type) {
   return { label, type };
+}
+
+function emptyDelta() {
+  return Object.fromEntries(
+    Object.entries(game.stats).map(([group, values]) => [
+      group,
+      Object.fromEntries(Object.keys(values).map((key) => [key, 0])),
+    ])
+  );
 }
 
 function applyDelta(delta) {
@@ -962,8 +982,16 @@ function showScene(title, paragraphs, choices, delta = null) {
   const deltaLine = hasDelta(delta) ? `<p class="delta">數值變動：${deltaText(delta)}</p>` : "";
   $("story").innerHTML = paragraphs.map((p) => `<p>${p}</p>`).join("") + apLine + deltaLine + thresholdText();
   showDeltaPopup(delta);
-  $("choices").innerHTML = choices.map((choice) => `<button data-type="${choice.type}" data-label="${choice.label}">${choice.label}</button>`).join("");
-  [...$("choices").querySelectorAll("button")].forEach((btn) => {
+  const choicesEl = $("choices");
+  choicesEl.innerHTML = "";
+  choices.forEach((choice) => {
+    const btn = document.createElement("button");
+    btn.dataset.type = choice.type;
+    btn.dataset.label = choice.label;
+    btn.textContent = choice.label;
+    choicesEl.appendChild(btn);
+  });
+  [...choicesEl.querySelectorAll("button")].forEach((btn) => {
     btn.addEventListener("click", () => {
       if (btn.dataset.type === "restartGame") restartGame();
       if (btn.dataset.type === "openEndingPage") renderEndingPage();
