@@ -33,6 +33,19 @@
         </div>
       </section>
 
+      <section id="aiLoading" class="ai-loading hidden">
+        <div class="ai-loading-card">
+          <p class="kicker">Client-Side AI</p>
+          <h2>正在載入本地劇情模型</h2>
+          <p id="aiLoadingDetail">準備檢查 WebGPU 與下載模型。</p>
+          <div class="ai-progress" aria-label="本地 AI 載入進度">
+            <i id="aiProgressBar"></i>
+          </div>
+          <strong id="aiProgressLabel">0%</strong>
+          <button id="skipAiBtn" type="button">略過本地AI，直接開始</button>
+        </div>
+      </section>
+
       <section id="game" class="game-screen hidden">
         <aside class="sidebar">
           <div class="brand">
@@ -69,8 +82,7 @@
             <button id="restartBtn" title="重新開始">重開</button>
           </div>
           <div class="ai-panel">
-            <button id="localAiBtn" type="button" title="下載並啟用瀏覽器本地 WebLLM 模型">本地AI</button>
-            <span id="localAiStatus">規則劇情模式</span>
+            <span id="localAiStatus">本地AI狀態：尚未載入</span>
           </div>
         </aside>
 

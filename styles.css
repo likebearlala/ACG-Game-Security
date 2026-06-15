@@ -49,7 +49,8 @@ button {
   min-height: 100vh;
 }
 
-.setup-screen {
+.setup-screen,
+.ai-loading {
   min-height: 100vh;
   display: grid;
   grid-template-columns: minmax(280px, 0.95fr) minmax(320px, 1.05fr);
@@ -58,6 +59,11 @@ button {
   max-width: 1180px;
   margin: 0 auto;
   padding: 44px 24px;
+}
+
+.ai-loading {
+  display: flex;
+  justify-content: center;
 }
 
 .setup-copy {
@@ -103,9 +109,59 @@ h1 {
   box-shadow: var(--shadow);
 }
 
-.setup-panel {
+.setup-panel,
+.ai-loading-card {
   border-radius: 8px;
   padding: 28px;
+}
+
+.ai-loading-card {
+  width: min(620px, 100%);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(31, 37, 40, 0.08);
+  box-shadow: var(--shadow);
+}
+
+.ai-loading-card h2 {
+  margin: 0 0 12px;
+  font-size: 30px;
+}
+
+.ai-loading-card p {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.ai-progress {
+  height: 12px;
+  margin: 18px 0 10px;
+  border-radius: 99px;
+  background: #e8e5dc;
+  overflow: hidden;
+}
+
+.ai-progress i {
+  display: block;
+  width: 0%;
+  height: 100%;
+  background: var(--teal);
+  transition: width 0.2s ease;
+}
+
+#aiProgressLabel {
+  display: block;
+  color: var(--wine);
+  font-size: 20px;
+}
+
+#skipAiBtn {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 18px;
+  border-radius: 8px;
+  background: var(--ink);
+  color: #fff;
+  font-weight: 800;
 }
 
 .step-indicator {
@@ -323,19 +379,6 @@ input {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #fbfaf6;
-}
-
-.ai-panel button {
-  min-height: 38px;
-  border-radius: 8px;
-  background: var(--teal);
-  color: #fff;
-  font-weight: 800;
-}
-
-.ai-panel button:disabled {
-  opacity: 0.68;
-  cursor: wait;
 }
 
 .ai-panel span {
@@ -633,6 +676,7 @@ input {
 
 @media (max-width: 900px) {
   .setup-screen,
+  .ai-loading,
   .game-screen,
   .ending-page {
     grid-template-columns: 1fr;

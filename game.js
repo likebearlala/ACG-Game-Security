@@ -62,6 +62,7 @@ let setupIndex = 0;
 let setupData = {};
 let selectedOption = "";
 let game = null;
+let gameStarted = false;
 
 const $ = (id) => document.getElementById(id);
 const clamp = (n) => Math.max(0, Math.min(100, Math.round(n)));
@@ -81,6 +82,7 @@ const localAI = {
   engine: null,
   ready: false,
   loading: false,
+  skipped: false,
   lastError: "",
 };
 
@@ -102,11 +104,27 @@ function avatarFor(group) {
   return game?.avatars?.[group] || fallback[group] || fallback.player;
 }
 
-function setLocalAIStatus(text, disabled = false) {
+function setLocalAIStatus(text, progress = null) {
   const status = $("localAiStatus");
-  const button = $("localAiBtn");
-  if (status) status.textContent = text;
-  if (button) button.disabled = disabled;
+  const detail = $("aiLoadingDetail");
+  const bar = $("aiProgressBar");
+  const label = $("aiProgressLabel");
+  if (status) status.textContent = `本地AI狀態：${text}`;
+  if (detail) detail.textContent = text;
+  if (typeof progress === "number") {
+    const pct = Math.max(0, Math.min(100, Math.round(progress)));
+    if (bar) bar.style.width = `${pct}%`;
+    if (label) label.textContent = `${pct}%`;
+  }
+}
+
+function startGameAfterAILoad() {
+  if (gameStarted || !game) return;
+  gameStarted = true;
+  $("aiLoading").classList.add("hidden");
+  $("setup").classList.add("hidden");
+  $("game").classList.remove("hidden");
+  renderOpening();
 }
 
 function supportsClientAI() {
@@ -114,35 +132,35 @@ function supportsClientAI() {
 }
 
 async function loadLocalAI() {
-  if (localAI.ready || localAI.loading) return;
+  if (localAI.ready) {
+    setLocalAIStatus("本地AI已載入，準備進入遊戲。", 100);
+    return;
+  }
+  if (localAI.loading || localAI.skipped) return;
   if (!supportsClientAI()) {
-    setLocalAIStatus("本地AI需要支援 WebGPU 的安全環境，已保留規則劇情");
+    setLocalAIStatus("此瀏覽器或目前網址不支援 WebGPU，將使用規則劇情開始。", 100);
     return;
   }
 
   localAI.loading = true;
-  setLocalAIStatus("本地AI載入中：準備下載模型", true);
+  setLocalAIStatus("準備下載本地模型。首次載入會比較久，模型會由瀏覽器快取。", 5);
 
   try {
     const webllm = await import(CLIENT_AI_MODULE_URL);
     localAI.engine = await webllm.CreateMLCEngine(CLIENT_AI_MODEL, {
       initProgressCallback: (progress) => {
-        const percent = typeof progress.progress === "number" ? ` ${Math.round(progress.progress * 100)}%` : "";
-        setLocalAIStatus(`本地AI載入中：${progress.text || "下載模型"}${percent}`, true);
+        const pct = typeof progress.progress === "number" ? progress.progress * 100 : null;
+        setLocalAIStatus(progress.text || "下載並初始化模型中", pct);
       },
     });
     localAI.ready = true;
-    setLocalAIStatus("本地AI已啟用：場景將由本機模型生成", true);
+    setLocalAIStatus("本地AI已啟用，進入遊戲。", 100);
   } catch (error) {
     localAI.lastError = error?.message || String(error);
     console.error("Client-side AI failed to load", error);
-    setLocalAIStatus("本地AI載入失敗，已回到規則劇情");
+    setLocalAIStatus("本地AI載入失敗，將使用規則劇情開始。", 100);
   } finally {
     localAI.loading = false;
-    if (!localAI.ready) {
-      const button = $("localAiBtn");
-      if (button) button.disabled = false;
-    }
   }
 }
 
@@ -174,7 +192,7 @@ function parseAIParagraphs(text) {
 
 async function generateClientAIScene(choice, scene) {
   if (!localAI.ready || !localAI.engine) return scene;
-  setLocalAIStatus("本地AI生成場景中", true);
+  setLocalAIStatus("本地AI生成場景中");
 
   try {
     const reply = await localAI.engine.chat.completions.create({
@@ -192,14 +210,14 @@ async function generateClientAIScene(choice, scene) {
     const content = reply?.choices?.[0]?.message?.content || "";
     const paragraphs = parseAIParagraphs(content);
     if (paragraphs.length >= 2) {
-      setLocalAIStatus("本地AI已啟用：場景由本機生成", true);
+      setLocalAIStatus("本地AI已啟用：場景由本機生成");
       return { ...scene, paragraphs };
     }
     throw new Error("本地模型回覆格式不足");
   } catch (error) {
     localAI.lastError = error?.message || String(error);
     console.error("Client-side AI scene generation failed", error);
-    setLocalAIStatus("本地AI本次生成失敗，已使用規則劇情", true);
+    setLocalAIStatus("本地AI本次生成失敗，已使用規則劇情");
     return scene;
   }
 }
@@ -260,6 +278,8 @@ function finishSetup() {
   let dangerName = pick(targetNames.danger.filter((name) => name !== partnerName));
   if (!dangerName) dangerName = pick(allTargetNames().filter((name) => name !== partnerName));
 
+  gameStarted = false;
+
   game = {
     week: 1,
     ap: 5,
@@ -281,9 +301,13 @@ function finishSetup() {
     lastTitle: "雨還沒落下來",
   };
 
+  localAI.skipped = false;
   $("setup").classList.add("hidden");
-  $("game").classList.remove("hidden");
-  renderOpening();
+  $("aiLoading").classList.remove("hidden");
+  setLocalAIStatus("準備載入本地劇情模型。", 0);
+  void loadLocalAI().finally(() => {
+    setTimeout(startGameAfterAILoad, localAI.ready ? 450 : 900);
+  });
 }
 
 function renderOpening() {
@@ -919,14 +943,20 @@ function restartGame() {
   setupIndex = 0;
   setupData = {};
   game = null;
+  gameStarted = false;
   $("game").classList.add("hidden");
+  $("aiLoading").classList.add("hidden");
   $("endingPage").classList.add("hidden");
   $("setup").classList.remove("hidden");
   $("freeForm").classList.remove("hidden");
   renderSetup();
 }
 
-$("localAiBtn").addEventListener("click", () => void loadLocalAI());
+$("skipAiBtn").addEventListener("click", () => {
+  localAI.skipped = true;
+  setLocalAIStatus("已略過本地AI，使用規則劇情開始。", 100);
+  startGameAfterAILoad();
+});
 $("restartBtn").addEventListener("click", restartGame);
 $("endingRestart").addEventListener("click", restartGame);
 $("endingBack").addEventListener("click", () => {
