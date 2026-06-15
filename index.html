@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>危險關係模擬器</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main id="app" class="app">
+      <section id="setup" class="setup-screen">
+        <div class="setup-copy">
+          <p class="kicker">成人情感互動劇情</p>
+          <h1>危險關係模擬器</h1>
+          <p class="content-warning">
+            內容警告：本遊戲包含出軌、欺瞞、情感傷害、冷戰與關係崩裂等成人議題，
+            僅供成年玩家進行情感敘事與心理探討。
+          </p>
+        </div>
+
+        <div class="setup-panel">
+          <div class="step-indicator">
+            <span id="stepLabel">Step 1 / 5</span>
+            <div><i id="stepBar"></i></div>
+          </div>
+          <h2 id="setupTitle">選擇身份</h2>
+          <div id="setupOptions" class="option-grid"></div>
+          <div id="customBox" class="custom-box hidden">
+            <label for="customInput">自訂設定</label>
+            <textarea id="customInput" rows="4" placeholder="寫下職業、年齡、性格、經濟狀況或你想保留的秘密。"></textarea>
+          </div>
+          <button id="nextSetup" class="primary-btn">下一步</button>
+        </div>
+      </section>
+
+      <section id="game" class="game-screen hidden">
+        <aside class="sidebar">
+          <div class="brand">
+            <span>危險關係</span>
+            <strong>第 <b id="weekNo">1</b> 週</strong>
+          </div>
+          <div class="portrait-stack">
+            <article>
+              <img src="assets/lead-cutout.png" alt="玩家角色" />
+              <div>
+                <span>你</span>
+                <strong id="playerRole">普通上班族</strong>
+              </div>
+            </article>
+            <article>
+              <img src="assets/partner-cutout.png" alt="現任角色" />
+              <div>
+                <span>現任</span>
+                <strong id="partnerName">沈予安</strong>
+              </div>
+            </article>
+            <article>
+              <img src="assets/danger-cutout.png" alt="危險對象" />
+              <div>
+                <span>危險對象</span>
+                <strong id="dangerName">林晏</strong>
+              </div>
+            </article>
+          </div>
+          <div id="stats" class="stats"></div>
+          <div class="save-row">
+            <button id="saveBtn" title="保存進度">保存</button>
+            <button id="loadBtn" title="讀取進度">讀取</button>
+            <button id="restartBtn" title="重新開始">重開</button>
+          </div>
+        </aside>
+
+        <section class="story-wrap">
+          <header class="story-hero">
+            <img src="assets/city-cat-cutout.png" alt="城市貓角色" />
+            <div>
+              <p id="phaseLabel">第一階段：穩定生活</p>
+              <h2 id="sceneTitle">開場</h2>
+            </div>
+          </header>
+          <article id="story" class="story"></article>
+          <div id="choices" class="choices"></div>
+          <form id="freeForm" class="free-form">
+            <input id="freeInput" type="text" placeholder="也可以自由描述你的行動，例如：先回家吃飯，但半夜再回訊息。" />
+            <button type="submit">送出</button>
+          </form>
+        </section>
+      </section>
+
+      <section id="endingPage" class="ending-page hidden">
+        <div class="ending-art">
+          <img id="endingAvatar" src="assets/lead-cutout.png" alt="大結局角色頭像" />
+        </div>
+        <article class="ending-copy">
+          <p id="endingBadge">大結局</p>
+          <h2 id="endingTitle">大結局</h2>
+          <strong id="endingFocus">你</strong>
+          <div id="endingStory"></div>
+          <div class="ending-actions">
+            <button id="endingRestart" type="button">重新開始新周目</button>
+            <button id="endingBack" type="button">回到劇情紀錄</button>
+          </div>
+        </article>
+      </section>
+
+      <div id="deltaPopup" class="delta-popup hidden" role="status" aria-live="polite">
+        <div>
+          <span>數值變動</span>
+          <section id="deltaPopupText" class="delta-popup-list"></section>
+          <button id="deltaPopupClose" type="button">知道了</button>
+        </div>
+      </div>
+    </main>
+
+    <script src="game.js"></script>
+  </body>
+</html>
