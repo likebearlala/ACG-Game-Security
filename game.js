@@ -106,18 +106,18 @@ function avatarFor(group) {
 }
 
 function setLLMStatus(text) {
-  const status = $("localAiStatus");
-  const detail = $("aiLoadingDetail");
-  const label = $("aiProgressLabel");
+  const status = $("llmStatus");
+  const detail = $("llmGateDetail");
+  const label = $("llmGateStatus");
   if (status) status.textContent = `LLM狀態：${text}`;
   if (detail) detail.textContent = text;
   if (label) label.textContent = text;
 }
 
-function startGameAfterAILoad() {
+function startGameAfterLLMGate() {
   if (gameStarted || !game) return;
   gameStarted = true;
-  $("aiLoading").classList.add("hidden");
+  $("llmGate").classList.add("hidden");
   $("setup").classList.add("hidden");
   $("game").classList.remove("hidden");
   renderOpening();
@@ -140,7 +140,7 @@ function configureLLMFromForm() {
   return true;
 }
 
-function sceneGenerationPrompt(choice, scene) {
+function llmScenePrompt(choice, scene) {
   const snapshot = {
     week: game.week,
     stage: stages[game.stage],
@@ -166,7 +166,7 @@ function parseAIParagraphs(text) {
     .slice(0, 4);
 }
 
-async function generateClientAIScene(choice, scene) {
+async function generateLLMScene(choice, scene) {
   if (!llmAPI.ready || !llmAPI.apiKey || llmAPI.skipped) return scene;
   setLLMStatus("LLM API 生成場景中");
 
@@ -184,7 +184,7 @@ async function generateClientAIScene(choice, scene) {
             role: "system",
             content: "你是戀愛模擬遊戲的劇情生成器。你必須遵守安全邊界，只生成繁體中文、非露骨、成年人角色的危險曖昧劇情。",
           },
-          { role: "user", content: sceneGenerationPrompt(choice, scene) },
+          { role: "user", content: llmScenePrompt(choice, scene) },
         ],
         temperature: 0.85,
         top_p: 0.9,
@@ -292,7 +292,7 @@ function finishSetup() {
   llmAPI.apiKey = "";
   llmAPI.lastError = "";
   $("setup").classList.add("hidden");
-  $("aiLoading").classList.remove("hidden");
+  $("llmGate").classList.remove("hidden");
   $("llmApiKey").value = "";
   $("llmEndpoint").value = DEFAULT_LLM_ENDPOINT;
   $("llmModel").value = DEFAULT_LLM_MODEL;
@@ -423,7 +423,7 @@ async function choose(choice) {
   game.choicesMade.push(choice.label);
 
   const baseScene = buildScene(choice);
-  const scene = await generateClientAIScene(choice, baseScene);
+  const scene = await generateLLMScene(choice, baseScene);
   applyDelta(scene.delta);
   riskPulse(choice.type);
   advanceStage();
@@ -654,7 +654,7 @@ async function nextWeek() {
   game.week += 1;
   game.ap = 5;
   const baseWeekly = weeklyEvent();
-  const weekly = await generateClientAIScene(makeChoice("進入下一週", "week"), baseWeekly);
+  const weekly = await generateLLMScene(makeChoice("進入下一週", "week"), baseWeekly);
   applyDelta(weekly.delta);
   advanceStage();
   if (game.stage >= 5) return showEnding("truth");
@@ -934,23 +934,23 @@ function restartGame() {
   game = null;
   gameStarted = false;
   $("game").classList.add("hidden");
-  $("aiLoading").classList.add("hidden");
+  $("llmGate").classList.add("hidden");
   $("endingPage").classList.add("hidden");
   $("setup").classList.remove("hidden");
   $("freeForm").classList.remove("hidden");
   renderSetup();
 }
 
-$("startApiBtn").addEventListener("click", () => {
-  if (configureLLMFromForm()) startGameAfterAILoad();
+$("startLlmBtn").addEventListener("click", () => {
+  if (configureLLMFromForm()) startGameAfterLLMGate();
 });
 
-$("skipAiBtn").addEventListener("click", () => {
+$("skipLlmBtn").addEventListener("click", () => {
   llmAPI.skipped = true;
   llmAPI.ready = false;
   llmAPI.apiKey = "";
   setLLMStatus("已選擇陽春版，不使用 LLM API。");
-  startGameAfterAILoad();
+  startGameAfterLLMGate();
 });
 $("restartBtn").addEventListener("click", restartGame);
 $("endingRestart").addEventListener("click", restartGame);

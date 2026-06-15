@@ -50,7 +50,7 @@ button {
 }
 
 .setup-screen,
-.ai-loading {
+.llm-gate {
   min-height: 100vh;
   display: grid;
   grid-template-columns: minmax(280px, 0.95fr) minmax(320px, 1.05fr);
@@ -61,7 +61,7 @@ button {
   padding: 44px 24px;
 }
 
-.ai-loading {
+.llm-gate {
   display: flex;
   justify-content: center;
 }
@@ -110,36 +110,36 @@ h1 {
 }
 
 .setup-panel,
-.ai-loading-card {
+.llm-gate-card {
   border-radius: 8px;
   padding: 28px;
 }
 
-.ai-loading-card {
+.llm-gate-card {
   width: min(620px, 100%);
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid rgba(31, 37, 40, 0.08);
   box-shadow: var(--shadow);
 }
 
-.ai-loading-card h2 {
+.llm-gate-card h2 {
   margin: 0 0 12px;
   font-size: 30px;
 }
 
-.ai-loading-card p {
+.llm-gate-card p {
   color: var(--muted);
   line-height: 1.7;
 }
 
-#aiProgressLabel {
+#llmGateStatus {
   display: block;
   color: var(--wine);
   font-size: 20px;
 }
 
-#startApiBtn,
-#skipAiBtn {
+#startLlmBtn,
+#skipLlmBtn {
   width: 100%;
   min-height: 44px;
   margin-top: 14px;
@@ -149,7 +149,7 @@ h1 {
   font-weight: 800;
 }
 
-#skipAiBtn {
+#skipLlmBtn {
   background: #edf2ef;
   color: var(--ink);
 }
@@ -678,7 +678,7 @@ input {
 
 @media (max-width: 900px) {
   .setup-screen,
-  .ai-loading,
+  .llm-gate,
   .game-screen,
   .ending-page {
     grid-template-columns: 1fr;

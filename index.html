@@ -33,11 +33,11 @@
         </div>
       </section>
 
-      <section id="aiLoading" class="ai-loading hidden">
-        <div class="ai-loading-card">
+      <section id="llmGate" class="llm-gate hidden">
+        <div class="llm-gate-card">
           <p class="kicker">LLM API</p>
-          <h2>輸入 LLM API Key</h2>
-          <p id="aiLoadingDetail">使用 OpenAI-compatible Chat Completions 生成劇情。API Key 只保存在本頁記憶體，不會寫入存檔。</p>
+          <h2>開始遊戲前設定 LLM API Key</h2>
+          <p id="llmGateDetail">使用 OpenAI-compatible Chat Completions 生成劇情。API Key 只保存在本頁記憶體，不會寫入存檔。</p>
           <div class="api-form">
             <label for="llmApiKey">API Key</label>
             <input id="llmApiKey" type="password" autocomplete="off" placeholder="sk-..." />
@@ -46,9 +46,9 @@
             <label for="llmModel">Model</label>
             <input id="llmModel" type="text" value="gpt-4o-mini" />
           </div>
-          <strong id="aiProgressLabel">尚未啟用</strong>
-          <button id="startApiBtn" type="button">使用 LLM API 開始</button>
-          <button id="skipAiBtn" type="button">體驗陽春版，不使用 LLM API</button>
+          <strong id="llmGateStatus">尚未啟用</strong>
+          <button id="startLlmBtn" type="button">使用 LLM API 進入遊戲</button>
+          <button id="skipLlmBtn" type="button">體驗陽春版，不使用 LLM API</button>
         </div>
       </section>
 
@@ -88,7 +88,7 @@
             <button id="restartBtn" title="重新開始">重開</button>
           </div>
           <div class="ai-panel">
-            <span id="localAiStatus">LLM狀態：尚未設定</span>
+            <span id="llmStatus">LLM狀態：尚未設定</span>
           </div>
         </aside>
 
