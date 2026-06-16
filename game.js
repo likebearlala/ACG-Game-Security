@@ -42,12 +42,77 @@ const pools = {
     female: ["周靜禾", "陳沐晴", "喬念", "夏知微", "宋以棠", "白若寧", "葉清梨", "程晚星"],
     neutral: ["季安", "凌澈", "南星", "青禾", "言川", "初白"],
   },
+  profiles: {
+    "沈予安": { age: 26, appearance: "俐落短髮、深邃眼眸、總穿白襯衫", traits: ["溫柔", "沉穩", "偶爾心軟"], background: "出版社副主編，喜歡在深夜讀未出版的手稿。" },
+    "許知遠": { age: 28, appearance: "金絲眼鏡、修長手指、笑起來有酒窩", traits: ["理性", "傲嬌", "嘴硬心軟"], background: "科技公司資深工程師，下班後會彈吉他。" },
+    "梁以辰": { age: 24, appearance: "微亂黑髮、金絲眼鏡、常穿深色毛衣", traits: ["傲嬌", "細心", "技術控"], background: "獨立遊戲開發者，熬夜寫代碼是日常。" },
+    "林晏": { age: 27, appearance: "清爽短髮、溫潤杏眼、總帶著淡淡咖啡香", traits: ["溫柔", "神祕", "若即若離"], background: "咖啡店老闆，總在打烊後獨自坐在角落翻書。" },
+    "唐若白": { age: 29, appearance: "銀框眼鏡、瘦削側臉、西裝永遠合身", traits: ["強勢", "專注", "偶爾脆弱"], background: "律師事務所合夥人，工作是他的保護色。" },
+    "陸景澄": { age: 25, appearance: "微捲瀏海、琥珀色瞳、笑容帶點邪氣", traits: ["直球", "佔有欲", "偶爾孩子氣"], background: "自由攝影師，鏡頭下的世界比現實溫柔。" },
+    "賀南川": { age: 30, appearance: "寸頭、深色外套、下巴線條分明", traits: ["沉默", "可靠", "壓抑感情"], background: "急診醫生，習慣在凌晨三點回家洗手三次。" },
+    "顧承安": { age: 26, appearance: "黑色連帽衫、手腕有細銀鍊、眼神懶散", traits: ["慵懶", "敏銳", "嘴毒心善"], background: "音樂製作人，總在截止日前一天交出驚豔的作品。" },
+    "周靜禾": { age: 25, appearance: "齊耳短髮、小鹿眼、總背帆布包", traits: ["文靜", "倔強", "暗藏堅定"], background: "獨立書店店員，正在寫自己的第一本小說。" },
+    "陳沐晴": { age: 24, appearance: "馬尾、亮眼笑容、運動風穿搭", traits: ["開朗", "直率", "有點迷糊"], background: "體育新聞記者，採訪時比運動員還緊張。" },
+    "喬念": { age: 27, appearance: "波浪長髮、紅唇、高跟鞋聲清脆", traits: ["優雅", "精明", "外冷內熱"], background: "品牌公關總監，社交場上的笑容從不多給。" },
+    "夏知微": { age: 23, appearance: "碎瀏海、圓框眼鏡、總穿淺色洋裝", traits: ["害羞", "善良", "容易心軟"], background: "甜點店學徒，夢想開一間只有六個座位的店。" },
+    "宋以棠": { age: 26, appearance: "冷白肌、銀色耳釘、眼尾微挑", traits: ["獨立", "高冷", "偶爾甜蜜"], background: "展覽策展人，說話很少但每句都精準。" },
+    "白若寧": { age: 28, appearance: "黑長直、氣質清冷、總戴銀色手錶", traits: ["理智", "溫柔", "保護欲強"], background: "心理諮商師，最擅長聽別人說不出口的話。" },
+    "葉清梨": { age: 22, appearance: "雙馬尾、大眼、笑起來像在發光", traits: ["活潑", "好奇", "有點任性"], background: "大學插畫系四年級，速寫本從不離身。" },
+    "程晚星": { age: 25, appearance: "低馬尾、淡妝、聲音低沉好聽", traits: ["沉靜", "敏感", "浪漫主義"], background: "深夜電台主持人，只在午夜才說真心話。" },
+    "季安": { age: 24, appearance: "中性穿搭、柔和五官、總戴棒球帽", traits: ["隨和", "細膩", "觀察力強"], background: "自由接案設計師，喜歡在公園畫速寫。" },
+    "凌澈": { age: 27, appearance: "銀灰短髮、冷淡表情、偶爾露出笑容", traits: ["冷傲", "認真", "不善表達"], background: "古典鋼琴演奏者，只在音樂裡表達情感。" },
+    "南星": { age: 23, appearance: "陽光膚色、明亮眼睛、總穿寬鬆T恤", traits: ["樂觀", "直球", "容易害羞"], background: "衝浪教練，相信每一道浪都值得追。" },
+    "青禾": { age: 26, appearance: "清秀五官、細長手指、總帶著筆記本", traits: ["安靜", "溫暖", "慢熱"], background: "植物園研究員，說話像在描述季節的更迭。" },
+    "言川": { age: 25, appearance: "俐落中短髮、深色穿搭、氣場很穩", traits: ["冷靜", "保護欲", "嘴硬"], background: "刑事律師，法庭上的氣勢和下班後完全不同。" },
+    "初白": { age: 22, appearance: "軟綿綿的劉海、淺色瞳、笑容很治癒", traits: ["天然呆", "真誠", "偶爾認真"], background: "花藝師，相信每束花都能傳達一句說不出口的話。" },
+  },
   playerGenders: ["女性", "男性", "非二元", "不透露"],
   targetGenders: ["男性", "女性", "男女皆有", "不限制"],
   partnerTraits: ["溫柔體貼型", "敏感多疑型", "強勢獨立型", "感情遲鈍型", "細心觀察型"],
   dangerTraits: ["溫柔攻勢型", "進攻直球型", "糾纏舊識型", "報復誘惑型", "陽光曖昧型"],
   jobs: ["出版社編輯", "展覽策展人", "品牌企劃", "急診護理師", "獨立攝影師", "資料分析師"],
 };
+
+function affinityLevel(group) {
+  if (!game || !game.stats[group]) return 0;
+  const s = game.stats[group];
+  if (group === "partner") return Math.min(15, Math.floor((s.愛意 + s.信任 + s.親密) / 20));
+  if (group === "danger") return Math.min(15, Math.floor((s.心動 + s.吸引 + s.依賴) / 20));
+  return 0;
+}
+
+function affinityLabel(level) {
+  if (level >= 11) return "💕 心動期";
+  if (level >= 6) return "💗 曖昧期";
+  return "🤍 認識期";
+}
+
+function profileCard(group) {
+  const p = game?.profiles?.[group];
+  if (!p) return "";
+  return `${p.name}（${p.age}歲）｜${p.traits.join("・")}｜${p.appearance}`;
+}
+
+function roleCard(group) {
+  const p = game?.profiles?.[group];
+  const name = game?.names?.[group] || "";
+  if (group === "partner") {
+    return `partner = 主要攻略角色 = ${name}。這是正常戀愛/穩定攻略線，不是危險對象。角色卡：${p ? `${p.age}歲，${p.traits.join("・")}，${p.appearance}，${p.background}` : "無"}`;
+  }
+  if (group === "danger") {
+    return `danger = 危險對象 = ${name}。這是誘惑、欺瞞、報復或高風險曖昧線，不是主要攻略角色。角色卡：${p ? `${p.age}歲，${p.traits.join("・")}，${p.appearance}，${p.background}` : "無"}`;
+  }
+  return "";
+}
+
+function actionFocus(type) {
+  if (type === "stable") return "本次選擇聚焦 partner 主要攻略角色，danger 只能作為干擾或背景壓力。";
+  if (type === "danger") return "本次選擇聚焦 danger 危險對象，partner 只能作為關係壓力或後果來源。";
+  if (type === "lie") return "本次選擇聚焦欺瞞行為，必須清楚標明欺瞞影響 partner 或 danger 的哪一方。";
+  if (type === "social") return "本次選擇聚焦社群可見範圍，必須清楚區分 partner 與 danger 看到的內容。";
+  if (type === "self") return "本次選擇聚焦玩家自我整理，可以同時提到兩名角色，但身份不可互換。";
+  return "本次選擇可收束劇情，但 partner 與 danger 的身份仍不可互換。";
+}
 
 const stages = [
   "第一階段：單身生活",
@@ -141,6 +206,8 @@ function configureLLMFromForm() {
 }
 
 function llmScenePrompt(choice, scene) {
+  const partnerAff = affinityLevel("partner");
+  const dangerAff = affinityLevel("danger");
   const snapshot = {
     week: game.week,
     ap: game.ap,
@@ -151,6 +218,10 @@ function llmScenePrompt(choice, scene) {
     setup: game.setup,
     names: game.names,
     traits: game.traits,
+    profiles: game.profiles,
+    roleMap: { partner: roleCard("partner"), danger: roleCard("danger") },
+    currentFocusRule: actionFocus(choice.type),
+    affinity: { partner: { level: partnerAff, label: affinityLabel(partnerAff) }, danger: { level: dangerAff, label: affinityLabel(dangerAff) } },
     stats: game.stats,
     title: scene.title,
     sourceParagraphs: scene.paragraphs,
@@ -159,19 +230,37 @@ function llmScenePrompt(choice, scene) {
     validChoiceTypes: ["stable", "danger", "lie", "self", "social", "nextWeek", "ending"],
   };
 
-  return `你是繁體中文視覺小說戀愛遊戲的劇情導演，不是單純潤稿器。
+  return `你是繁體中文視覺小說戀愛遊戲的劇情導演，也是資深乙女遊戲編劇。
 請根據玩家開局設定、目前數值、最近選擇、角色姓名與性別，生成下一個完整可互動劇情節點。
 
+角色設定規範：
+- ${roleCard("partner")}，好感階段：${affinityLabel(partnerAff)}（${partnerAff}/15）
+- ${roleCard("danger")}，好感階段：${affinityLabel(dangerAff)}（${dangerAff}/15）
+- 本次焦點：${actionFocus(choice.type)}
+- partner 與 danger 是兩個不同角色，姓名、身份、性格、數值線都不可互換。
+- 寫到 partner 時只能使用主要攻略角色、穩定線、正常戀愛線、信任與親密語境。
+- 寫到 danger 時只能使用危險對象、誘惑線、欺瞞/報復/高風險曖昧語境。
+- 不要把 danger 稱為主要攻略角色；不要把 partner 稱為危險對象。
+- 若同一段同時出現兩人，必須用姓名明確區分誰說話、誰行動、誰造成後果。
+- 請嚴格依照角色的性格關鍵詞決定對白風格和行為模式。
+
 安全邊界：
-- 角色都必須是成年人。
-- 不要加入已婚、已有現任伴侶、未成年、露骨性描寫。
+- 角色都必須是成年人。不要加入未成年。
 - 可以保留欺瞞、報復、曖昧拉扯、肢體接觸、親吻、過夜、關係失控與後果。
 - 玩家關係起點是單身、剛認識、曖昧或正常戀愛推進。
+
+寫作規範：
+- 語言風格：使用甜蜜、細膩且帶點俏皮的語氣。避免粗俗、歧視或沉重內容。
+- 字數限制：所有敘述和台詞總字數不超過 300 字。每個單句不超過 30 字。
+- 情感與好感度層次：
+  好感度分為三階段：「好感 0-5」為初步認識（語氣禮貌、保持距離）、「好感 6-10」為互有好感與曖昧（語氣親暱、會臉紅）、「好感 11-15」為穩定交往前的心動（語氣甜蜜、有肢體接觸）。
+  請根據當前好感階段決定角色的親密度與對白語氣。
+- 分支機制：最多生成 3 個選項。每個選項應引導不同的好感度變化，並在對應場景做出自然回饋。
 
 輸出必須是純 JSON，不能有 markdown，格式如下：
 {
   "title": "本段標題",
-  "paragraphs": ["3 到 5 段小說式劇情，每段 40 到 90 字"],
+  "paragraphs": ["3 到 5 段小說式劇情，每段單句必小於 30 字，總長小於 300 字"],
   "delta": {
     "partner": { "必須沿用 existingDeltaShape.partner 的所有 key": 0 },
     "danger": { "必須沿用 existingDeltaShape.danger 的所有 key": 0 },
@@ -184,13 +273,15 @@ function llmScenePrompt(choice, scene) {
 }
 
 規則：
-- choices 必須有 3 到 5 個，不能每次都一樣。
+- choices 必須有 2 到 3 個，不能每次都一樣。
 - 每個 choice 要導向不同的情緒與風險：坦白、靠近、欺瞞、報復、抽身、推進關係等。
-- choices.label 要像玩家真正在對 LLM 下指令，不要寫成泛用選單。
+- choices.label 要像玩家真正在對 LLM 下指令，不要寫成泛用選單，字數小於 30 字。
 - 如果目前選擇或數值已經足以收束，ending 可改成：
   { "title": "結局名", "focus": "self|partner|danger", "paragraphs": ["3 到 5 段結局小說"] }
 - 不要讓 AI 直接改遊戲規則；delta 只做小到中等幅度變動，數字介於 -18 到 18。
 - 回覆內容要明顯呼應本次 action 與 setup，讓不同設定與選項產生不同小說內容、選項與可能結局。
+- 回覆前先自我檢查：${game.names.partner} 是否全程是 partner/主要攻略角色？${game.names.danger} 是否全程是 danger/危險對象？若混淆，請自行重寫後再輸出 JSON。
+- choices.label 如果要點名角色，必須直接使用正確姓名，不要只寫「他/她/對方」。
 
 目前遊戲狀態：
 ${JSON.stringify(snapshot)}`;
@@ -228,7 +319,7 @@ function normalizeLLMChoices(value, fallback) {
       return makeChoice(String(item?.label || "").trim(), normalizeChoiceType(item?.type));
     })
     .filter((choice) => choice.label)
-    .slice(0, 5);
+    .slice(0, 3);
   return choices.length >= 2 ? choices : fallback;
 }
 
@@ -289,7 +380,7 @@ async function generateLLMScene(choice, scene, fallbackChoices) {
         messages: [
           {
             role: "system",
-            content: "你是繁體中文視覺小說遊戲引擎。你只輸出可解析 JSON，並根據玩家選項生成劇情、下一步選項、數值變動與可能結局。",
+            content: "你是繁體中文乙女視覺小說遊戲引擎與資深戀愛劇本編劇。你只輸出可解析 JSON。partner 永遠是主要攻略角色；danger 永遠是危險對象，兩者姓名、身份、性格與劇情功能不可互換。請根據角色卡維持角色一致性，用甜蜜細膩的語氣生成劇情、下一步選項（最多3個）、數值變動與可能結局。每個單句不超過30字，總字數不超過300字。",
           },
           { role: "user", content: llmScenePrompt(choice, scene) },
         ],
@@ -380,6 +471,9 @@ function finishSetup() {
 
   gameStarted = false;
 
+  const partnerProfile = pools.profiles[partnerName] || { age: rand(23, 30), appearance: "氣質出眾", traits: ["溫柔", "認真", "細心"], background: "在城市裡安靜生活的人。" };
+  const dangerProfile = pools.profiles[dangerName] || { age: rand(22, 29), appearance: "眼神帶著吸引力", traits: ["神祕", "大膽", "迷人"], background: "總是在不經意間出現的人。" };
+
   game = {
     week: 1,
     ap: 5,
@@ -392,6 +486,10 @@ function finishSetup() {
     names: { partner: partnerName, danger: dangerName },
     avatars: randomAvatars(),
     traits: { partner: pick(pools.partnerTraits), danger: pick(pools.dangerTraits) },
+    profiles: {
+      partner: { name: partnerName, ...partnerProfile },
+      danger: { name: dangerName, ...dangerProfile },
+    },
     stats: {
       partner: { 愛意: rand(18, 32), 信任: rand(25, 42), 親密: rand(8, 20), 不安: rand(8, 18), 距離: rand(0, 8) },
       danger: { 心動: rand(8, 18), 吸引: rand(4, 12), 依賴: rand(3, 10), 主動: rand(4, 12), 在意: rand(0, 8) },
@@ -582,13 +680,13 @@ function buildScene(choice) {
     stable: [
       {
         id: "stable-dinner",
-      title: pick(["廚房裡的燈", "一頓太平常的晚餐", "回家路上的傘"]),
-      delta: { partner: { 愛意: 4, 信任: 3, 親密: 4, 不安: -2, 距離: -3 }, danger: { 心動: -1, 吸引: 0, 依賴: -1, 主動: 2, 在意: 3 }, player: { 壓力: -4, 猶豫: -5, 界線感: 1 } },
-      paragraphs: [
-        `${pn}在你進門前就把湯熱好了。不是什麼大事，一只小碗，一雙筷子，桌邊還放著你前幾天隨口說想吃的青菜。你坐下時，手機在口袋裡震了一下，你沒有立刻拿出來。`,
-        `${pn}像是察覺了，又像是刻意放過你，只問：「今天是不是很累？」這句話太輕，反而讓你心裡某個地方塌下去。你忽然意識到，穩定不是無聊，它是有人願意反覆接住你的普通。`,
-        heat.includes("純") ? `你們靠在沙發上看一部很慢的電影，肩膀碰著肩膀，親密安靜得像一盞不刺眼的燈。` : `電影播到一半，${pn}把你的手握過去。那一瞬間你沒有躲，卻也沒有完全放鬆。溫度是真的，心虛也是真的。`,
-      ],
+        title: pick(["廚房裡的燈", "一頓太平常的晚餐", "回家路上的傘"]),
+        delta: { partner: { 愛意: 4, 信任: 3, 親密: 4, 不安: -2, 距離: -3 }, danger: { 心動: -1, 吸引: 0, 依賴: -1, 主動: 2, 在意: 3 }, player: { 壓力: -4, 猶豫: -5, 界線感: 1 } },
+        paragraphs: [
+          `${pn}在你進門前就把湯熱好了。不是什麼大事，一只小碗，一雙筷子，桌邊還放著你前幾天隨口說想吃的青菜。你坐下時，手機在口袋裡震了一下，你沒有立刻拿出來。`,
+          `${pn}像是察覺了，又像是刻意放過你，只問：「今天是不是很累？」這句話太輕，反而讓你心裡某個地方塌下去。你忽然意識到，穩定不是無聊，它是有人願意反覆接住你的普通。`,
+          heat.includes("純") ? `你們靠在沙發上看一部很慢的電影，肩膀碰著肩膀，親密安靜得像一盞不刺眼的燈。` : `電影播到一半，${pn}把你的手握過去。那一瞬間你沒有躲，卻也沒有完全放鬆。溫度是真的，心虛也是真的。`,
+        ],
       },
       {
         id: "stable-family",
@@ -614,14 +712,14 @@ function buildScene(choice) {
     danger: [
       {
         id: "danger-line-night",
-      title: pick(["深夜訊息", "電梯獨處", "雨天共傘", "咖啡杯邊的名字"]),
-      delta: { partner: { 愛意: -1, 信任: -2, 親密: -1, 不安: highPressure ? 6 : 3, 距離: 2 }, danger: { 心動: 8, 吸引: heat.includes("純") ? 2 : 5, 依賴: 4, 主動: 5, 在意: 2 }, player: { 壓力: 8, 猶豫: 10, 界線感: 3 } },
-      paragraphs: [
-        `【LINE｜00:47】${dn}：睡了嗎？`,
-        `${dn}沒有立刻說想你，那樣太俗，也太容易被拒絕。對方只是發來一張便利店門口的照片，雨絲被路燈照得很細，下一句是：「剛才看到一個背影很像你。」`,
-        `你盯著螢幕很久，明知道這不是普通同事或普通朋友該有的距離。可偏偏那種被看見的感覺，比任何直白邀約都更難推開。你回了一句「還沒睡」，幾秒後，對面顯示正在輸入。`,
-        `${dn}說：「那我是不是可以多佔用你五分鐘？」你忽然聽見客廳裡${pn}翻身的聲音，像現實在提醒你：五分鐘也會有重量。`,
-      ],
+        title: pick(["深夜訊息", "電梯獨處", "雨天共傘", "咖啡杯邊的名字"]),
+        delta: { partner: { 愛意: -1, 信任: -2, 親密: -1, 不安: highPressure ? 6 : 3, 距離: 2 }, danger: { 心動: 8, 吸引: heat.includes("純") ? 2 : 5, 依賴: 4, 主動: 5, 在意: 2 }, player: { 壓力: 8, 猶豫: 10, 界線感: 3 } },
+        paragraphs: [
+          `【LINE｜00:47】${dn}：睡了嗎？`,
+          `${dn}沒有立刻說想你，那樣太俗，也太容易被拒絕。對方只是發來一張便利店門口的照片，雨絲被路燈照得很細，下一句是：「剛才看到一個背影很像你。」`,
+          `你盯著螢幕很久，明知道這不是普通同事或普通朋友該有的距離。可偏偏那種被看見的感覺，比任何直白邀約都更難推開。你回了一句「還沒睡」，幾秒後，對面顯示正在輸入。`,
+          `${dn}說：「那我是不是可以多佔用你五分鐘？」你忽然聽見客廳裡${pn}翻身的聲音，像現實在提醒你：五分鐘也會有重量。`,
+        ],
       },
       {
         id: "danger-rain",
@@ -647,13 +745,13 @@ function buildScene(choice) {
     self: [
       {
         id: "self-store",
-      title: pick(["一個人的便利店", "失眠前奏", "把手機扣在桌上"]),
-      delta: { partner: { 愛意: -2, 信任: 0, 親密: -2, 不安: 1, 距離: 3 }, danger: { 心動: 0, 吸引: 0, 依賴: -1, 主動: 3, 在意: 1 }, player: { 壓力: -2, 猶豫: 2, 界線感: -1 } },
-      paragraphs: [
-        `你沒有回任何人的訊息。便利店的冷氣開得太足，冰櫃嗡嗡作響，你拿著一瓶無糖茶站了很久，像站在自己生活的旁觀席。`,
-        `手機螢幕亮了又暗。${pn}問你幾點回，${dn}問你明天要不要一起喝咖啡。兩條訊息一前一後，誰都沒有逼你，但你知道真正逼人的從來不是文字，是你看完後沒有立刻刪掉的那幾秒。`,
-        `你把手機扣在桌上。這個動作看似乾淨，心裡卻並沒有因此變得清白。`,
-      ],
+        title: pick(["一個人的便利店", "失眠前奏", "把手機扣在桌上"]),
+        delta: { partner: { 愛意: -2, 信任: 0, 親密: -2, 不安: 1, 距離: 3 }, danger: { 心動: 0, 吸引: 0, 依賴: -1, 主動: 3, 在意: 1 }, player: { 壓力: -2, 猶豫: 2, 界線感: -1 } },
+        paragraphs: [
+          `你沒有回任何人的訊息。便利店的冷氣開得太足，冰櫃嗡嗡作響，你拿著一瓶無糖茶站了很久，像站在自己生活的旁觀席。`,
+          `手機螢幕亮了又暗。${pn}問你幾點回，${dn}問你明天要不要一起喝咖啡。兩條訊息一前一後，誰都沒有逼你，但你知道真正逼人的從來不是文字，是你看完後沒有立刻刪掉的那幾秒。`,
+          `你把手機扣在桌上。這個動作看似乾淨，心裡卻並沒有因此變得清白。`,
+        ],
       },
       {
         id: "self-insomnia",
@@ -679,13 +777,13 @@ function buildScene(choice) {
     social: [
       {
         id: "social-ig-post",
-      title: pick(["IG 頁面的蛛絲", "一個讚", "公開與摯友限定"]),
-      delta: { partner: { 愛意: 1, 信任: 0, 親密: 0, 不安: 2, 距離: 0 }, danger: { 心動: 3, 吸引: 1, 依賴: 1, 主動: 4, 在意: 5 }, player: { 壓力: 5, 猶豫: 4, 界線感: 2 } },
-      paragraphs: [
-        `【IG｜22:11】${pn} 更新了一則貼文：終於把下個月的旅行訂好了。配圖是兩張車票，角落裡有一隻伸懶腰的貓。朋友在留言區起鬨，說你們是不是快有好消息。`,
-        `幾分鐘後，${dn}點了讚。沒有評論，沒有多餘表情，只有那個小小的紅心停在一排熟人名字裡。它看起來無害，卻像有人在公開場合碰了一下你的手背。`,
-        `你開始猶豫要不要把某些限時動態丟進摯友名單，或乾脆對某個人隱藏。這個念頭冒出來時，你自己都愣了一下。原來祕密不是從猶豫言開始的，它從「我只是調整一下可見範圍」開始。`,
-      ],
+        title: pick(["IG 頁面的蛛絲", "一個讚", "公開與摯友限定"]),
+        delta: { partner: { 愛意: 1, 信任: 0, 親密: 0, 不安: 2, 距離: 0 }, danger: { 心動: 3, 吸引: 1, 依賴: 1, 主動: 4, 在意: 5 }, player: { 壓力: 5, 猶豫: 4, 界線感: 2 } },
+        paragraphs: [
+          `【IG｜22:11】${pn} 更新了一則貼文：終於把下個月的旅行訂好了。配圖是兩張車票，角落裡有一隻伸懶腰的貓。朋友在留言區起鬨，說你們是不是快有好消息。`,
+          `幾分鐘後，${dn}點了讚。沒有評論，沒有多餘表情，只有那個小小的紅心停在一排熟人名字裡。它看起來無害，卻像有人在公開場合碰了一下你的手背。`,
+          `你開始猶豫要不要把某些限時動態丟進摯友名單，或乾脆對某個人隱藏。這個念頭冒出來時，你自己都愣了一下。原來祕密不是從猶豫言開始的，它從「我只是調整一下可見範圍」開始。`,
+        ],
       },
       {
         id: "social-close-friends",
@@ -975,6 +1073,10 @@ function showScene(title, paragraphs, choices, delta = null) {
   $("playerRole").textContent = playerProfileLabel();
   $("partnerName").textContent = game.names.partner;
   $("dangerName").textContent = game.names.danger;
+  const pp = game.profiles?.partner;
+  const dp = game.profiles?.danger;
+  if ($("partnerProfile")) $("partnerProfile").textContent = pp ? `${pp.age}歲｜${pp.traits.join("・")}` : "";
+  if ($("dangerProfile")) $("dangerProfile").textContent = dp ? `${dp.age}歲｜${dp.traits.join("・")}` : "";
   $("playerAvatar").src = avatarFor("player");
   $("partnerAvatar").src = avatarFor("partner");
   $("dangerAvatar").src = avatarFor("danger");
@@ -1020,7 +1122,13 @@ function renderStats() {
     ["玩家狀態", "player"],
   ];
   $("stats").innerHTML = groups
-    .map(([title, key]) => `<section class="stat-group"><h3>${title}</h3>${Object.entries(game.stats[key]).map(([name, value]) => statRow(name, value)).join("")}</section>`)
+    .map(([title, key]) => {
+      const aff = (key === "partner" || key === "danger") ? affinityLevel(key) : -1;
+      const affHtml = aff >= 0 ? `<div class="affinity-badge affinity-${aff >= 11 ? 'high' : aff >= 6 ? 'mid' : 'low'}">${affinityLabel(aff)} <span>${aff}/15</span></div>` : "";
+      const profile = game?.profiles?.[key];
+      const profileHtml = profile ? `<p class="profile-line">${profile.traits.join("・")}｜${profile.appearance}</p>` : "";
+      return `<section class="stat-group"><h3>${title}</h3>${affHtml}${profileHtml}${Object.entries(game.stats[key]).map(([name, value]) => statRow(name, value)).join("")}</section>`;
+    })
     .join("");
 }
 
@@ -1065,6 +1173,11 @@ $("loadBtn").addEventListener("click", () => {
   game.usedEvents = game.usedEvents || [];
   game.avatars = game.avatars || randomAvatars();
   game.ended = Boolean(game.ended);
+  if (!game.profiles) {
+    const pp = pools.profiles[game.names.partner] || { age: 25, appearance: "氣質出眾", traits: ["溫柔", "認真", "細心"], background: "在城市裡安靜生活的人。" };
+    const dp = pools.profiles[game.names.danger] || { age: 24, appearance: "眼神帶著吸引力", traits: ["神祕", "大膽", "迷人"], background: "總是在不經意間出現的人。" };
+    game.profiles = { partner: { name: game.names.partner, ...pp }, danger: { name: game.names.danger, ...dp } };
+  }
   $("setup").classList.add("hidden");
   if (game.ended && game.ending) {
     renderEndingPage(game.ending);

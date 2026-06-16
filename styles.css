@@ -322,6 +322,15 @@ input {
   font-size: 13px;
 }
 
+.profile-hint {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.4;
+  margin-top: 2px;
+  opacity: 0.8;
+}
+
 .stats {
   overflow: auto;
   padding-right: 4px;
@@ -334,6 +343,50 @@ input {
 .stat-group h3 {
   margin: 0 0 8px;
   font-size: 15px;
+}
+
+.affinity-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.affinity-badge span {
+  font-weight: 400;
+  opacity: 0.7;
+}
+
+.affinity-low {
+  background: #f0ebe3;
+  color: var(--muted);
+}
+
+.affinity-mid {
+  background: linear-gradient(135deg, #fce4ec, #f8bbd0);
+  color: #9f3655;
+}
+
+.affinity-high {
+  background: linear-gradient(135deg, #fce4ec, #f48fb1);
+  color: #c62828;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 rgba(244, 143, 177, 0); }
+  50% { box-shadow: 0 0 12px rgba(244, 143, 177, 0.45); }
+}
+
+.profile-line {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
 }
 
 .stat-row {
